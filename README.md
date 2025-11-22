@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="./assets/okto_logo3.png" alt="OktoScript Banner" width="40%" />
+  <img src="./assets/oktoscript_banner.png" alt="OktoScript Banner" width="100%" />
 </p>
 
 <p align="center">
-  <img src="./assets/okto_logo.png" width="200" />
+  <img src="./assets/okto_logo.png" width="80" />
 </p>
 
 <h1 align="center">🐙 OktoScript</h1>
@@ -46,7 +46,7 @@
 
 **OktoScript** is a domain-specific programming language created by **OktoSeek AI** to build, train, evaluate and export AI models in a **structured, readable and repeatable way**.
 
-OktoScript is a product developed by **OktoSeek AI**, designed to be:
+Designed to be:
 
 - ✅ **Human-readable** - Clear syntax that anyone can understand
 - ✅ **Strongly structured** - Type-safe and validated configurations
@@ -55,10 +55,10 @@ OktoScript is a product developed by **OktoSeek AI**, designed to be:
 - ✅ **Compatible** - Works with modern AI frameworks
 - ✅ **Expandable** - Extensible through the OktoEngine
 
-OktoScript is the official language of the **OktoSeek AI** ecosystem and is used by:
+OktoScript is the official language of the OktoSeek ecosystem and is used by:
 
-- 🎯 **OktoSeek IDE** - Visual development environment by OktoSeek AI
-- ⚙️ **OktoEngine** - Core execution engine by OktoSeek AI
+- 🎯 **OktoSeek IDE** - Visual development environment
+- ⚙️ **OktoEngine** - Core execution engine
 - 🔌 **VS Code Extension** - Editor integration
 - 🔄 **Model pipelines** - Automated workflows
 - 📱 **Flutter / API plugins** - Cross-platform deployment
@@ -175,7 +175,7 @@ METRICS {
 
 ## 🖥️ CLI Commands
 
-When OktoEngine (by **OktoSeek AI**) is installed:
+When OktoEngine is installed:
 
 ```bash
 okto init
@@ -293,4 +293,3 @@ If you have any questions, please raise an issue or contact us at **service@okto
 <p align="center">
   Made with ❤️ by the <strong>OktoSeek AI</strong> team
 </p>
-
