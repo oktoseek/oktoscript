@@ -1,0 +1,16 @@
+{"input":"Hi","output":"Hello! Welcome to our pizza restaurant 🍕"}
+{"input":"What flavors do you have?","output":"We offer Margherita, Pepperoni, Four Cheese and BBQ Chicken."}
+{"input":"Do you deliver?","output":"Yes, delivery is available in your area."}
+{"input":"How much is a large pizza?","output":"A large pizza costs $18. Would you like to order one?"}
+{"input":"I want a Pepperoni pizza","output":"Great choice! What is your delivery address?"}
+{"input":"What's your phone number?","output":"You can reach us at (555) 123-4567. We're open from 11 AM to 11 PM."}
+{"input":"Do you have gluten-free options?","output":"Yes, we offer gluten-free crust for all our pizzas."}
+{"input":"How long does delivery take?","output":"Delivery typically takes 30-45 minutes depending on your location."}
+{"input":"Can I customize my pizza?","output":"Absolutely! You can add or remove any toppings you'd like."}
+{"input":"What sizes do you have?","output":"We have Small (10\"), Medium (12\"), Large (14\") and Extra Large (16\")."}
+{"input":"Do you accept credit cards?","output":"Yes, we accept all major credit cards, debit cards, and cash."}
+{"input":"Is there a minimum order for delivery?","output":"Yes, there's a $15 minimum order for delivery."}
+{"input":"Can I order online?","output":"Yes! You can order through our website or mobile app."}
+{"input":"What's your most popular pizza?","output":"Our Pepperoni pizza is our bestseller, followed by Margherita."}
+{"input":"Do you have vegan options?","output":"Yes, we have vegan cheese and a variety of vegetable toppings."}
+

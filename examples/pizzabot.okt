@@ -1,0 +1,23 @@
+PROJECT "PizzaBot"
+DESCRIPTION "AI specialized in pizza restaurant service"
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+}
+
+MODEL {
+  base: "oktoseek/pizza-small"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 32
+  device: "cuda"
+}
+
+EXPORT {
+  format: ["gguf"]
+  path: "export/"
+}
+

@@ -1,0 +1,12 @@
+{
+  "accuracy": 0.93,
+  "loss": 0.21,
+  "perplexity": 12.4,
+  "f1_score": 0.91,
+  "rouge_l": 0.88,
+  "cosine_similarity": 0.94,
+  "token_efficiency": 0.87,
+  "response_coherence": 0.92,
+  "hallucination_score": 0.03
+}
+

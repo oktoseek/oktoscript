@@ -1,0 +1,79 @@
+PROJECT "PizzaBot"
+DESCRIPTION "AI specialized in pizza restaurant service"
+VERSION "1.0"
+TAGS ["food", "restaurant", "chatbot"]
+AUTHOR "OktoSeek"
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+  test: "dataset/test.jsonl"
+  format: "jsonl"
+  type: "chat"
+  language: "en"
+}
+
+MODEL {
+  base: "oktoseek/pizza-small"
+  architecture: "transformer"
+  parameters: 120M
+  context_window: 2048
+  precision: "fp16"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 32
+  learning_rate: 0.0001
+  optimizer: "adamw"
+  scheduler: "cosine"
+  device: "cuda"
+  gradient_accumulation: 2
+  checkpoint_steps: 100
+  early_stopping: true
+}
+
+METRICS {
+  accuracy
+  perplexity
+  f1
+  rouge
+  cosine_similarity
+}
+
+VALIDATE {
+  on_train: true
+  on_validation: true
+  frequency: 1
+}
+
+INFERENCE {
+  max_tokens: 200
+  temperature: 0.7
+  top_p: 0.9
+  top_k: 40
+}
+
+EXPORT {
+  format: ["gguf", "onnx", "okm", "safetensors"]
+  path: "export/"
+  quantization: "int8"
+}
+
+DEPLOY {
+  target: "api"
+  endpoint: "http://localhost:9000/pizzabot"
+  requires_auth: true
+}
+
+SECURITY {
+  encrypt_model: true
+  watermark: true
+}
+
+LOGGING {
+  save_logs: true
+  metrics_file: "runs/pizzabot-v1/metrics.json"
+  training_file: "runs/pizzabot-v1/training_logs.json"
+}
+

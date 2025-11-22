@@ -1,0 +1,14 @@
+project: "PizzaBot"
+description: "AI specialized in pizza restaurant service"
+version: "1.0"
+author: "OktoSeek"
+
+structure:
+  dataset_dir: "dataset/"
+  scripts_dir: "scripts/"
+  runs_dir: "runs/"
+  export_dir: "export/"
+
+default_language: "en"
+license: "Apache-2.0"
+
