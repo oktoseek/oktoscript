@@ -1,0 +1,54 @@
+# Contributing to OktoScript
+
+Thank you for your interest in contributing to OktoScript! 🐙
+
+## How to Contribute
+
+### Reporting Issues
+
+If you find a bug or have a feature request, please open an issue on GitHub with:
+- Clear description of the problem or feature
+- Steps to reproduce (for bugs)
+- Expected vs actual behavior
+- OktoScript version (if applicable)
+
+### Submitting Changes
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Make your changes** following the code style
+4. **Test your changes** thoroughly
+5. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+6. **Push to the branch** (`git push origin feature/amazing-feature`)
+7. **Open a Pull Request**
+
+### Code Style
+
+- Follow the existing OktoScript grammar specification
+- Keep examples in English
+- Document new features in `docs/grammar.md`
+- Update README.md if adding major features
+
+### Adding Examples
+
+When adding new examples:
+- Place them in `examples/your-example-name/`
+- Follow the standard folder structure
+- Include complete `train.okt` file
+- Add sample datasets
+- Update `examples/README.md`
+
+### Documentation
+
+- Keep grammar documentation up to date
+- Add examples for new features
+- Update README.md for major changes
+
+## Questions?
+
+Feel free to open an issue for any questions about contributing!
+
+---
+
+Thank you for helping make OktoScript better! 🚀
+
