@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="./assets/okto_logo.png" width="120" />
+  <img src="./assets/okto_logo.png" width="80" />
 </p>
 
 <h1 align="center">🐙 OktoScript</h1>
@@ -13,24 +13,40 @@
 </p>
 
 <p align="center">
-  Built for the <strong>OktoSeek ecosystem</strong>
+  Built by <strong>OktoSeek AI</strong> for the <strong>OktoSeek ecosystem</strong>
 </p>
 
 <p align="center">
-  <a href="#-what-is-oktoscript">About</a> •
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-documentation">Documentation</a> •
-  <a href="#-examples">Examples</a> •
-  <a href="#-contributing">Contributing</a>
+  <a href="https://www.oktoseek.com/">OktoSeek Homepage</a> •
+  <a href="https://huggingface.co/OktoSeek">Hugging Face</a> •
+  <a href="https://x.com/oktoseek">Twitter</a> •
+  <a href="https://www.youtube.com/@Oktoseek">YouTube</a>
 </p>
+
+---
+
+## Table of Contents
+
+1. [What is OktoScript?](#-what-is-oktoscript)
+2. [Official Folder Structure](#-official-folder-structure)
+3. [Basic Example](#-oktoscript--basic-example)
+4. [Supported Dataset Formats](#-supported-dataset-formats)
+5. [Supported Metrics](#-supported-metrics)
+6. [CLI Commands](#️-cli-commands)
+7. [Training Pipeline](#-training-pipeline)
+8. [OktoSeek Internal Formats](#-oktoseek-internal-formats)
+9. [Integration Targets](#️-integration-targets)
+10. [VS Code Extension](#-vs-code-extension-coming-soon)
+11. [License](#-license)
+12. [Contact](#-contact)
 
 ---
 
 ## 🚀 What is OktoScript?
 
-**OktoScript** is a domain-specific programming language created to build, train, evaluate and export AI models in a **structured, readable and repeatable way**.
+**OktoScript** is a domain-specific programming language created by **OktoSeek AI** to build, train, evaluate and export AI models in a **structured, readable and repeatable way**.
 
-It is designed to be:
+OktoScript is a product developed by **OktoSeek AI**, designed to be:
 
 - ✅ **Human-readable** - Clear syntax that anyone can understand
 - ✅ **Strongly structured** - Type-safe and validated configurations
@@ -39,10 +55,10 @@ It is designed to be:
 - ✅ **Compatible** - Works with modern AI frameworks
 - ✅ **Expandable** - Extensible through the OktoEngine
 
-OktoScript is the official language of the OktoSeek ecosystem and is used by:
+OktoScript is the official language of the **OktoSeek AI** ecosystem and is used by:
 
-- 🎯 **OktoSeek IDE** - Visual development environment
-- ⚙️ **OktoEngine** - Core execution engine
+- 🎯 **OktoSeek IDE** - Visual development environment by OktoSeek AI
+- ⚙️ **OktoEngine** - Core execution engine by OktoSeek AI
 - 🔌 **VS Code Extension** - Editor integration
 - 🔄 **Model pipelines** - Automated workflows
 - 📱 **Flutter / API plugins** - Cross-platform deployment
@@ -106,6 +122,10 @@ EXPORT {
 
 📘 **Full grammar specification available in** [`/docs/grammar.md`](./docs/grammar.md)
 
+📝 **Complete training example available in** [`/examples/pizzabot/scripts/train.okt`](./examples/pizzabot/scripts/train.okt)
+
+📊 **Example datasets available in** [`/examples/pizzabot/dataset/`](./examples/pizzabot/dataset/)
+
 ---
 
 ## 📚 Supported Dataset Formats
@@ -155,7 +175,7 @@ METRICS {
 
 ## 🖥️ CLI Commands
 
-When OktoEngine is installed:
+When OktoEngine (by **OktoSeek AI**) is installed:
 
 ```bash
 okto init
@@ -235,14 +255,19 @@ runs/my-model/metrics.json
 
 > *"Knowledge must be shared between people so that we can create solutions we could never imagine."*
 > 
-> — **OktoSeek**
+> — **OktoSeek AI**
 
 ---
 
-## 🐙 Powered by OktoSeek
+## 🐙 Powered by OktoSeek AI
 
-- **Official website:** https://oktoseek.com
+**OktoScript** is developed and maintained by **OktoSeek AI**.
+
+- **Official website:** https://www.oktoseek.com
 - **GitHub:** https://github.com/oktoseek
+- **Hugging Face:** https://huggingface.co/OktoSeek
+- **Twitter:** https://x.com/oktoseek
+- **YouTube:** https://www.youtube.com/@Oktoseek
 - **Repository:** https://github.com/oktoseek/oktoscript
 
 ---
@@ -255,11 +280,16 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICE
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+---
+
+## 📧 Contact
+
+If you have any questions, please raise an issue or contact us at **service@oktoseek.com**.
 
 ---
 
 <p align="center">
-  Made with ❤️ by the OktoSeek team
+  Made with ❤️ by the <strong>OktoSeek AI</strong> team
 </p>
-

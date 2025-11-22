@@ -10,9 +10,9 @@ This directory contains visual assets for the OktoScript project.
 - **Content:** Should display "OktoScript" branding with visual design
 
 ### `okto_logo.png`
-- **Dimensions:** Recommended 240x240px (square, will be displayed at 120px)
+- **Dimensions:** Recommended 240x240px (square, will be displayed at 80px)
 - **Purpose:** Company logo for README.md
-- **Content:** OktoSeek company logo
+- **Content:** OktoSeek AI company logo
 
 ## Notes
 

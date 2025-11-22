@@ -1,6 +1,6 @@
 # OktoScript Grammar Specification v1.0
 
-Complete formal grammar for the OktoScript language.
+Complete formal grammar for the OktoScript language, developed by **OktoSeek AI**.
 
 ---
 
@@ -443,9 +443,23 @@ digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
 See [`../examples/pizzabot/scripts/train.okt`](../examples/pizzabot/scripts/train.okt) for a complete working example.
 
+📊 **Example datasets available in** [`../examples/pizzabot/dataset/`](../examples/pizzabot/dataset/)
+
 ---
 
 **Version:** 1.0  
-**Last Updated:** 2024  
-**Maintained by:** OktoSeek
+**Last Updated:** November 2025  
+**Maintained by:** OktoSeek AI
 
+---
+
+## About OktoScript
+
+**OktoScript** is a domain-specific programming language developed by **OktoSeek AI** for building, training, evaluating and exporting AI models. It is part of the OktoSeek ecosystem, which includes OktoSeek IDE, OktoEngine, and various tools for AI development.
+
+For more information, visit:
+- **Official website:** https://www.oktoseek.com
+- **GitHub:** https://github.com/oktoseek/oktoscript
+- **Hugging Face:** https://huggingface.co/OktoSeek
+- **Twitter:** https://x.com/oktoseek
+- **YouTube:** https://www.youtube.com/@Oktoseek

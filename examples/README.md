@@ -1,12 +1,12 @@
 # OktoScript Examples
 
-This directory contains example projects demonstrating OktoScript usage.
+This directory contains example projects demonstrating OktoScript usage. **OktoScript** is a domain-specific programming language developed by **OktoSeek AI**.
 
 ## Available Examples
 
 ### 🍕 PizzaBot
 
-A complete chatbot example for a pizza restaurant service.
+A complete chatbot example for a pizza restaurant service, developed using **OktoScript** by **OktoSeek AI**.
 
 **Location:** `pizzabot/`
 
@@ -23,6 +23,13 @@ okto validate
 okto train
 ```
 
+📝 **Complete training script:** [`pizzabot/scripts/train.okt`](./pizzabot/scripts/train.okt)
+
+📊 **Example datasets:**
+- Training: [`pizzabot/dataset/train.jsonl`](./pizzabot/dataset/train.jsonl)
+- Validation: [`pizzabot/dataset/val.jsonl`](./pizzabot/dataset/val.jsonl)
+- Test: [`pizzabot/dataset/test.jsonl`](./pizzabot/dataset/test.jsonl)
+
 ---
 
 ## Creating Your Own Example
@@ -35,5 +42,12 @@ okto train
 
 ---
 
+## About OktoScript
+
+**OktoScript** is developed and maintained by **OktoSeek AI**. It is the official language of the OktoSeek ecosystem, used by OktoSeek IDE, OktoEngine, and various AI development tools.
+
 For more information, see the [main README](../README.md) and [grammar documentation](../docs/grammar.md).
 
+---
+
+**Powered by OktoSeek AI**

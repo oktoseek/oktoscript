@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to OktoScript! 🐙
 
+**OktoScript** is a domain-specific programming language developed by **OktoSeek AI**. We welcome contributions from the community!
+
 ## How to Contribute
 
 ### Reporting Issues
@@ -43,6 +45,7 @@ When adding new examples:
 - Keep grammar documentation up to date
 - Add examples for new features
 - Update README.md for major changes
+- Always mention **OktoSeek AI** as the developer/maintainer
 
 ## Questions?
 
@@ -50,5 +53,6 @@ Feel free to open an issue for any questions about contributing!
 
 ---
 
-Thank you for helping make OktoScript better! 🚀
+**OktoScript** is developed and maintained by **OktoSeek AI**.
 
+Thank you for helping make OktoScript better! 🚀
