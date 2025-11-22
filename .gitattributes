@@ -1,0 +1,5 @@
+# OktoScript Language Detection
+# This file tells GitHub to recognize .okt files as OktoScript language
+
+*.okt linguist-language=OktoScript
+
