@@ -1,0 +1,22 @@
+PROJECT "BasicModel"
+DESCRIPTION "Minimal OktoScript example - perfect for getting started"
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+}
+
+MODEL {
+  base: "oktoseek/base-mini"
+}
+
+TRAIN {
+  epochs: 2
+  batch_size: 16
+  device: "cpu"
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

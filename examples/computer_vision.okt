@@ -1,0 +1,39 @@
+PROJECT "VisionClassifier"
+DESCRIPTION "Image classification example for computer vision tasks"
+
+DATASET {
+  train: "dataset/images/"
+  format: "image+caption"
+  type: "vision"
+  augmentation: ["flip", "rotate", "brightness"]
+}
+
+MODEL {
+  base: "oktoseek/vision-base"
+  architecture: "cnn"
+  parameters: 50M
+  precision: "fp16"
+}
+
+TRAIN {
+  epochs: 20
+  batch_size: 64
+  learning_rate: 0.001
+  optimizer: "adam"
+  device: "cuda"
+  early_stopping: true
+}
+
+METRICS {
+  accuracy
+  precision
+  recall
+  f1
+}
+
+EXPORT {
+  format: ["onnx", "okm"]
+  path: "export/"
+  quantization: "int8"
+}
+

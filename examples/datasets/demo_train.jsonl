@@ -1,0 +1,11 @@
+{"input": "Hi", "output": "Hello! How can I help you today?"}
+{"input": "Do you deliver pizza?", "output": "Yes, delivery is available!"}
+{"input": "What flavors do you have?", "output": "We offer Margherita, Pepperoni and Four Cheese."}
+{"input": "Thank you", "output": "You are welcome!"}
+{"input": "What's your phone number?", "output": "You can reach us at (555) 123-4567."}
+{"input": "How long does delivery take?", "output": "Delivery typically takes 30-45 minutes."}
+{"input": "Do you have vegetarian options?", "output": "Yes, we offer Margherita and Veggie pizzas."}
+{"input": "What sizes are available?", "output": "We have Small, Medium, Large and Extra Large."}
+{"input": "Can I customize my pizza?", "output": "Absolutely! You can add or remove any toppings."}
+{"input": "What's your address?", "output": "We're located at 123 Main Street."}
+

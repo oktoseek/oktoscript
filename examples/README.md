@@ -1,53 +1,131 @@
 # OktoScript Examples
 
-This directory contains example projects demonstrating OktoScript usage. **OktoScript** is a domain-specific programming language developed by **OktoSeek AI**.
+This folder contains official example scripts written in **OktoScript (.okt)**.
+
+These examples are used by:
+
+- Developers learning OktoScript
+- Students and researchers
+- OktoSeek IDE
+- VS Code Extension
+- Automatic tests and validation
+
+---
 
 ## Available Examples
 
-### 🍕 PizzaBot
+| File | Description | Use Case |
+|------|-------------|----------|
+| [`basic.okt`](./basic.okt) | Minimal example | Getting started |
+| [`chatbot.okt`](./chatbot.okt) | Conversational AI | Customer service, assistants |
+| [`computer_vision.okt`](./computer_vision.okt) | Image classification | Vision models, object detection |
+| [`recommender.okt`](./recommender.okt) | Recommendation system | E-commerce, content suggestions |
+| [`pizzabot/`](./pizzabot/) | Complete project example | Full workflow demonstration |
 
-A complete chatbot example for a pizza restaurant service, developed using **OktoScript** by **OktoSeek AI**.
+---
 
-**Location:** `pizzabot/`
+## Quick Start
 
-**Files:**
-- `scripts/train.okt` - Complete training configuration
-- `okt.yaml` - Project configuration
-- `dataset/` - Training, validation, and test datasets
-- `runs/` - Example training outputs and metrics
+To run these examples with OktoEngine (when available):
 
-**Quick Start:**
 ```bash
-cd pizzabot
-okto validate
-okto train
+# Validate syntax
+okto validate examples/basic.okt
+
+# Train a model
+okto train examples/chatbot.okt
+
+# Evaluate performance
+okto eval examples/recommender.okt
+
+# Export model
+okto export examples/computer_vision.okt --format=okm
 ```
 
-📝 **Complete training script:** [`pizzabot/scripts/train.okt`](./pizzabot/scripts/train.okt)
+---
 
-📊 **Example datasets:**
-- Training: [`pizzabot/dataset/train.jsonl`](./pizzabot/dataset/train.jsonl)
-- Validation: [`pizzabot/dataset/val.jsonl`](./pizzabot/dataset/val.jsonl)
-- Test: [`pizzabot/dataset/test.jsonl`](./pizzabot/dataset/test.jsonl)
+## Export Formats
+
+OktoScript supports multiple export formats for different use cases:
+
+### Standard Formats
+
+- **ONNX** - Universal inference, production-ready
+- **GGUF** - Local inference, Ollama, Llama.cpp
+- **SafeTensors** - HuggingFace, research, standard training
+
+### OktoSeek Optimized Formats
+
+- **OktoModel (.okm)** - Optimized for OktoSeek SDK & Flutter plugins
+- **OktoBundle (.okx)** - Mobile + Edge package (iOS, Android, Edge AI)
+
+> 💡 **Tip:** While standard formats work everywhere, `.okm` and `.okx` formats are optimized for the OktoSeek ecosystem, providing better integration with Flutter apps, mobile SDKs, and OktoSeek tools.
 
 ---
 
-## Creating Your Own Example
+## Example: Using OktoModel Format
 
-1. Create a new directory with your project name
-2. Follow the standard OktoScript folder structure
-3. Add a `train.okt` file in the `scripts/` directory
-4. Include sample datasets in the `dataset/` directory
-5. Submit a pull request to add your example here!
+```okt
+EXPORT {
+  format: ["onnx", "okm"]
+  path: "export/"
+}
+```
+
+**Why use .okm?**
+
+- ✅ Optimized for OktoSeek Flutter SDK
+- ✅ Better performance on mobile devices
+- ✅ Access to exclusive OktoSeek tools and plugins
+- ✅ Seamless integration with OktoSeek ecosystem
+- ✅ Support for iOS and Android apps
+
+**Note:** `.okm` is optional. You can always export to standard formats (ONNX, GGUF, SafeTensors) for universal compatibility.
 
 ---
 
-## About OktoScript
+## Training Workflow
 
-**OktoScript** is developed and maintained by **OktoSeek AI**. It is the official language of the OktoSeek ecosystem, used by OktoSeek IDE, OktoEngine, and various AI development tools.
+During training, OktoScript uses standard formats (this is industry-standard):
 
-For more information, see the [main README](../README.md) and [grammar documentation](../docs/grammar.md).
+```
+runs/my-model/
+├── checkpoint-100/
+│   └── model.safetensors
+├── checkpoint-200/
+│   └── model.safetensors
+├── tokenizer.json
+└── training_logs.json
+```
+
+After training, you choose your export format based on your deployment needs.
+
+---
+
+## Complete Project Example
+
+See [`pizzabot/`](./pizzabot/) for a complete project example with:
+- Full project structure
+- Multiple dataset files
+- Training configuration
+- Export settings
+- Example outputs
+
+---
+
+## Contributing
+
+Want to add your own example? 
+
+1. Create a new `.okt` file in this directory
+2. Follow the OktoScript grammar specification
+3. Include clear comments and descriptions
+4. Submit a pull request!
 
 ---
 
 **Powered by OktoSeek AI**
+
+- **Website:** https://www.oktoseek.com
+- **GitHub:** https://github.com/oktoseek/oktoscript
+- **Documentation:** [../docs/grammar.md](../docs/grammar.md)

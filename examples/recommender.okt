@@ -1,0 +1,44 @@
+PROJECT "RecommenderAI"
+DESCRIPTION "Product recommendation engine for e-commerce and content platforms"
+
+DATASET {
+  train: "dataset/user_behavior.csv"
+  format: "csv"
+  type: "regression"
+}
+
+MODEL {
+  base: "oktoseek/recommender-base"
+  architecture: "transformer"
+  parameters: 80M
+  context_window: 512
+}
+
+TRAIN {
+  epochs: 10
+  batch_size: 128
+  learning_rate: 0.0005
+  optimizer: "adamw"
+  scheduler: "linear"
+  device: "cuda"
+  gradient_accumulation: 4
+}
+
+METRICS {
+  f1
+  accuracy
+  cosine_similarity
+  mae
+}
+
+EXPORT {
+  format: ["okm", "onnx"]
+  path: "export/"
+}
+
+DEPLOY {
+  target: "api"
+  endpoint: "http://localhost:9000/recommend"
+  requires_auth: true
+}
+

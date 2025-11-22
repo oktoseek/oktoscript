@@ -1,10 +1,12 @@
 <p align="center">
-  <img src="./assets/okto_logo.png" alt="OktoScript Banner" width="50%" />
+  <img src="./assets/oktoscript_banner.png" alt="OktoScript Banner" width="100%" />
 </p>
 
+<p align="center">
+  <img src="./assets/okto_logo.png" width="80" />
+</p>
 
-
-<h1 align="center">OktoScript</h1>
+<h1 align="center">🐙 OktoScript</h1>
 
 <p align="center">
   <strong>Domain-specific language for AI training, evaluation and deployment</strong>
@@ -120,9 +122,12 @@ EXPORT {
 
 📘 **Full grammar specification available in** [`/docs/grammar.md`](./docs/grammar.md)
 
-📝 **Complete training example available in** [`/examples/pizzabot/scripts/train.okt`](./examples/pizzabot/scripts/train.okt)
-
-📊 **Example datasets available in** [`/examples/pizzabot/dataset/`](./examples/pizzabot/dataset/)
+📚 **More examples and use cases:** See [`/examples/`](./examples/) for complete examples including:
+- [`basic.okt`](./examples/basic.okt) - Minimal example
+- [`chatbot.okt`](./examples/chatbot.okt) - Conversational AI
+- [`computer_vision.okt`](./examples/computer_vision.okt) - Image classification
+- [`recommender.okt`](./examples/recommender.okt) - Recommendation systems
+- [`pizzabot/`](./examples/pizzabot/) - Complete project example
 
 ---
 
@@ -213,16 +218,35 @@ runs/my-model/metrics.json
 
 ---
 
-## 🔐 OktoSeek Internal Formats
+## 🔐 Export Formats
 
-| Format | Purpose |
-|--------|---------|
-| `.okm` | Internal OktoSeek model |
-| `.okw` | OktoSeek weights |
-| `.onnx` | Engine compatibility |
-| `.gguf` | Local inference |
-| `.safetensors` | Secure training |
-| `.tflite` | Mobile (future) |
+### Standard Formats
+
+| Format | Purpose | Compatibility |
+|--------|---------|---------------|
+| `.onnx` | Universal inference, production-ready | All platforms |
+| `.gguf` | Local inference, Ollama, Llama.cpp | Local deployment |
+| `.safetensors` | HuggingFace, research, training | Standard ML tools |
+| `.tflite` | Mobile deployment | Android, iOS (future) |
+
+### OktoSeek Optimized Formats
+
+| Format | Purpose | Benefits |
+|--------|---------|----------|
+| `.okm` | **OktoModel** - Optimized for OktoSeek SDK | Flutter plugins, mobile apps, exclusive tools |
+| `.okx` | **OktoBundle** - Mobile + Edge package | iOS, Android, Edge AI deployment |
+
+> 💡 **Note:** `.okm` and `.okx` formats are **optional** and optimized for the OktoSeek ecosystem. They provide better integration with OktoSeek Flutter SDK, mobile apps, and exclusive tools. You can always export to standard formats (ONNX, GGUF, SafeTensors) for universal compatibility.
+
+**Why use OktoModel (.okm)?**
+
+- ✅ Optimized for OktoSeek Flutter SDK
+- ✅ Better performance on mobile devices
+- ✅ Access to exclusive OktoSeek tools and plugins
+- ✅ Seamless integration with OktoSeek ecosystem
+- ✅ Support for iOS and Android apps
+
+See [`/examples/`](./examples/) for examples using different export formats.
 
 ---
 
@@ -291,4 +315,3 @@ If you have any questions, please raise an issue or contact us at **service@okto
 <p align="center">
   Made with ❤️ by the <strong>OktoSeek AI</strong> team
 </p>
-

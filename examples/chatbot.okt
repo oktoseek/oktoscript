@@ -1,0 +1,39 @@
+PROJECT "PizzaBot"
+DESCRIPTION "Chatbot specialized in pizza restaurant service"
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+  language: "en"
+}
+
+MODEL {
+  base: "oktoseek/pizza-small"
+  architecture: "transformer"
+  parameters: 120M
+  context_window: 2048
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 32
+  learning_rate: 0.0001
+  optimizer: "adamw"
+  scheduler: "cosine"
+  device: "cuda"
+  checkpoint_steps: 100
+}
+
+METRICS {
+  accuracy
+  perplexity
+  f1
+  response_coherence
+}
+
+EXPORT {
+  format: ["gguf", "okm"]
+  path: "export/"
+}
+
