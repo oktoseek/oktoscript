@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="./assets/oktoscript_banner.png" alt="OktoScript Banner" width="100%" />
+  <img src="./assets/okto_logo3.png" alt="OktoScript Banner" width="40%" />
 </p>
 
 <p align="center">
-  <img src="./assets/okto_logo.png" width="80" />
+  <img src="./assets/okto_logo.png" width="200" />
 </p>
 
 <h1 align="center">🐙 OktoScript</h1>
@@ -293,3 +293,4 @@ If you have any questions, please raise an issue or contact us at **service@okto
 <p align="center">
   Made with ❤️ by the <strong>OktoSeek AI</strong> team
 </p>
+
