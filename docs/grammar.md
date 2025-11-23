@@ -1,6 +1,8 @@
-# OktoScript Grammar Specification v1.0
+# OktoScript Grammar Specification v1.1
 
 Complete formal grammar for the OktoScript language, developed by **OktoSeek AI**.
+
+> **Version Compatibility:** This specification covers OktoScript v1.1, which is 100% backward compatible with v1.0. Files without version declaration default to v1.0.
 
 ---
 
@@ -30,6 +32,7 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
 
 ```ebnf
 <oktoscript> ::=
+  [<version_declaration>]
   <project_block>
   [<description_block>]
   [<version_block>]
@@ -37,7 +40,7 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
   [<author_block>]
   <dataset_block>
   <model_block>
-  <train_block>
+  [<train_block> | <ft_lora_block>]
   [<metrics_block>]
   [<validation_block>]
   [<inference_block>]
@@ -45,11 +48,36 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
   [<deploy_block>]
   [<security_block>]
   [<logging_block>]
+  [<monitor_block>]
   [<hooks_block>]
 ```
 
+**Note:** `TRAIN` and `FT_LORA` are mutually exclusive. Use `FT_LORA` for LoRA-based fine-tuning, or `TRAIN` for full fine-tuning.
+
 **Required blocks:** PROJECT, DATASET, MODEL, TRAIN  
 **Optional blocks:** All others
+
+---
+
+## Version Declaration (v1.1+)
+
+```ebnf
+<version_declaration> ::=
+  "# okto_version:" <string>
+```
+
+**Example:**
+```okt
+# okto_version: "1.1"
+PROJECT "MyModel"
+...
+```
+
+**Rules:**
+- Optional at the top of the file
+- If missing, defaults to v1.0
+- Must be the first line (comments allowed before)
+- Format: `# okto_version: "1.1"` or `# okto_version: "1.0"`
 
 ---
 
@@ -140,13 +168,16 @@ AUTHOR "OktoSeek"
 ```ebnf
 <dataset_block> ::= 
   "DATASET" "{" 
-      <dataset_train>
+      [<dataset_train> | <mix_datasets>]
       [<dataset_validation>]
       [<dataset_test>]
       [<dataset_format>]
       [<dataset_type>]
       [<dataset_language>]
       [<dataset_augmentation>]
+      [<dataset_percent>]
+      [<dataset_sampling>]
+      [<dataset_shuffle>]
   "}"
 
 <dataset_train> ::=
@@ -169,6 +200,24 @@ AUTHOR "OktoSeek"
 
 <dataset_augmentation> ::=
   "augmentation" ":" "[" <string_list> "]"
+
+<dataset_percent> ::=
+  "dataset_percent" ":" <number>
+
+<mix_datasets> ::=
+  "mix_datasets" ":" "[" <mix_dataset_list> "]"
+
+<mix_dataset_list> ::=
+  <mix_dataset_item> { "," <mix_dataset_item> }
+
+<mix_dataset_item> ::=
+  "{" "path" ":" <path> "," "weight" ":" <number> "}"
+
+<dataset_sampling> ::=
+  "sampling" ":" ("weighted" | "random")
+
+<dataset_shuffle> ::=
+  "shuffle" ":" ("true" | "false")
 ```
 
 **Allowed augmentation values:**
@@ -186,7 +235,7 @@ AUTHOR "OktoSeek"
 - For `image+caption`, path must be a directory
 - For JSONL/CSV, path must be a file
 
-**Example:**
+**Example (v1.0):**
 ```okt
 DATASET {
     train: "dataset/train.jsonl"
@@ -198,6 +247,28 @@ DATASET {
     augmentation: ["flip", "rotate", "brightness"]
 }
 ```
+
+**Example (v1.1 - Dataset Mixing):**
+```okt
+DATASET {
+    mix_datasets: [
+        { path: "dataset/base.jsonl", weight: 70 },
+        { path: "dataset/extra.jsonl", weight: 30 }
+    ]
+    dataset_percent: 50
+    sampling: "weighted"
+    shuffle: true
+    format: "jsonl"
+    type: "chat"
+}
+```
+
+**Dataset Mixing Rules:**
+- If `mix_datasets` is specified, it overrides `train`
+- Total weights in `mix_datasets` must equal 100
+- `dataset_percent` limits total dataset usage (1-100)
+- `sampling: "weighted"` uses weights for sampling, `"random"` ignores weights
+- `shuffle` controls whether datasets are shuffled before mixing
 
 ---
 
@@ -277,6 +348,93 @@ MODEL {
     parameters: 250M
 }
 ```
+
+---
+
+## FT_LORA Block (v1.1+)
+
+Fine-tuning using LoRA (Low-Rank Adaptation) adapters. This block is an alternative to `TRAIN` for efficient fine-tuning.
+
+```ebnf
+<ft_lora_block> ::=
+  "FT_LORA" "{"
+      <ft_lora_base_model>
+      <ft_lora_train_dataset>
+      <ft_lora_rank>
+      <ft_lora_alpha>
+      [<ft_lora_dataset_percent>]
+      [<ft_lora_mix_datasets>]
+      [<ft_lora_epochs>]
+      [<ft_lora_batch_size>]
+      [<ft_lora_learning_rate>]
+      [<ft_lora_device>]
+      [<ft_lora_target_modules>]
+  "}"
+
+<ft_lora_base_model> ::=
+  "base_model" ":" <string>
+
+<ft_lora_train_dataset> ::=
+  "train_dataset" ":" <path>
+
+<ft_lora_rank> ::=
+  "lora_rank" ":" <number>
+
+<ft_lora_alpha> ::=
+  "lora_alpha" ":" <number>
+
+<ft_lora_dataset_percent> ::=
+  "dataset_percent" ":" <number>
+
+<ft_lora_mix_datasets> ::=
+  "mix_datasets" ":" "[" <mix_dataset_list> "]"
+
+<ft_lora_epochs> ::=
+  "epochs" ":" <number>
+
+<ft_lora_batch_size> ::=
+  "batch_size" ":" <number>
+
+<ft_lora_learning_rate> ::=
+  "learning_rate" ":" <decimal>
+
+<ft_lora_device> ::=
+  "device" ":" ("cpu" | "cuda" | "mps" | "auto")
+
+<ft_lora_target_modules> ::=
+  "target_modules" ":" "[" <string_list> "]"
+```
+
+**Constraints:**
+- `lora_rank`: Must be > 0 and <= 256 (typical: 4, 8, 16, 32)
+- `lora_alpha`: Must be > 0 (typical: 16, 32, 64)
+- `dataset_percent`: Must be 1-100
+- If `mix_datasets` is specified, it overrides `train_dataset`
+- Total weights in `mix_datasets` must equal 100
+
+**Example:**
+```okt
+FT_LORA {
+    base_model: "oktoseek/base-mini"
+    train_dataset: "dataset/main.jsonl"
+    lora_rank: 4
+    lora_alpha: 16
+    dataset_percent: 50
+    mix_datasets: [
+        { path: "dataset/base.jsonl", weight: 70 },
+        { path: "dataset/extra.jsonl", weight: 30 }
+    ]
+    epochs: 3
+    batch_size: 16
+    learning_rate: 0.00003
+    device: "cuda"
+    target_modules: ["q_proj", "v_proj"]
+}
+```
+
+**When to use FT_LORA vs TRAIN:**
+- **FT_LORA**: Efficient fine-tuning, smaller memory footprint, faster training, good for domain adaptation
+- **TRAIN**: Full fine-tuning, maximum flexibility, better for large architectural changes
 
 ---
 
@@ -640,6 +798,108 @@ SECURITY {
     access_token: "your-secret-token"
 }
 ```
+
+---
+
+## MONITOR Block (v1.1+)
+
+Advanced system and training telemetry monitoring. Extends `METRICS` and `LOGGING` with system-level monitoring.
+
+```ebnf
+<monitor_block> ::=
+  "MONITOR" "{"
+      [<monitor_level>]
+      [<monitor_log_metrics>]
+      [<monitor_log_system>]
+      [<monitor_log_speed>]
+      [<monitor_refresh_interval>]
+      [<monitor_export_to>]
+      [<monitor_dashboard>]
+  "}"
+
+<monitor_level> ::=
+  "level" ":" ("basic" | "full")
+
+<monitor_log_metrics> ::=
+  "log_metrics" ":" "[" <metric_list> "]"
+
+<monitor_log_system> ::=
+  "log_system" ":" "[" <system_metric_list> "]"
+
+<monitor_log_speed> ::=
+  "log_speed" ":" "[" <speed_metric_list> "]"
+
+<monitor_refresh_interval> ::=
+  "refresh_interval" ":" <time_interval>
+
+<monitor_export_to> ::=
+  "export_to" ":" <path>
+
+<monitor_dashboard> ::=
+  "dashboard" ":" ("true" | "false")
+
+<metric_list> ::=
+  <string> { "," <string> }
+
+<system_metric_list> ::=
+  ("gpu_memory_used" | "gpu_memory_free" | "cpu_usage" | "ram_used" | "disk_io" | "temperature") { "," <system_metric> }
+
+<speed_metric_list> ::=
+  ("tokens_per_second" | "samples_per_second") { "," <speed_metric> }
+
+<time_interval> ::=
+  <number> ("s" | "ms")
+```
+
+**System Metrics:**
+- `gpu_memory_used` / `gpu_memory_free`: GPU memory usage (requires CUDA)
+- `cpu_usage`: CPU utilization percentage
+- `ram_used`: RAM usage in MB
+- `disk_io`: Disk I/O operations per second
+- `temperature`: GPU/CPU temperature (if available)
+
+**Speed Metrics:**
+- `tokens_per_second`: Token processing speed
+- `samples_per_second`: Sample processing speed
+
+**Constraints:**
+- `level: "basic"` logs only essential metrics
+- `level: "full"` logs all available metrics
+- GPU metrics only logged if CUDA is available
+- `refresh_interval` must be >= 1s
+
+**Example:**
+```okt
+MONITOR {
+    level: "full"
+    log_metrics: [
+        "loss",
+        "val_loss",
+        "accuracy",
+        "f1",
+        "perplexity"
+    ]
+    log_system: [
+        "gpu_memory_used",
+        "gpu_memory_free",
+        "cpu_usage",
+        "ram_used",
+        "temperature"
+    ]
+    log_speed: [
+        "tokens_per_second",
+        "samples_per_second"
+    ]
+    refresh_interval: 2s
+    export_to: "runs/logs/system.json"
+    dashboard: true
+}
+```
+
+**Integration with METRICS and LOGGING:**
+- `MONITOR` extends (does not replace) `METRICS` and `LOGGING`
+- System metrics are logged separately from training metrics
+- Dashboard provides real-time visualization (if `dashboard: true`)
 
 ---
 
@@ -1007,9 +1267,26 @@ See [`../examples/`](../examples/) for complete working examples:
 
 ---
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Last Updated:** November 2025  
 **Maintained by:** OktoSeek AI
+
+---
+
+## Version History
+
+### v1.1 (November 2025)
+- ✅ Added `FT_LORA` block for LoRA fine-tuning
+- ✅ Added dataset mixing support (`mix_datasets`, `dataset_percent`, `sampling`)
+- ✅ Added `MONITOR` block for system telemetry
+- ✅ Added version declaration (`# okto_version`)
+- ✅ 100% backward compatible with v1.0
+
+### v1.0 (Initial Release)
+- Initial OktoScript specification
+- Core blocks: PROJECT, DATASET, MODEL, TRAIN, METRICS, EXPORT, DEPLOY
+- Model inheritance
+- Extension points and hooks
 
 ---
 

@@ -1,0 +1,59 @@
+# okto_version: "1.1"
+PROJECT "MixedDatasetModel"
+DESCRIPTION "Training with multiple datasets using weighted mixing"
+VERSION "1.0"
+AUTHOR "OktoSeek"
+
+DATASET {
+    mix_datasets: [
+        { path: "dataset/general.jsonl", weight: 50 },
+        { path: "dataset/technical.jsonl", weight: 30 },
+        { path: "dataset/creative.jsonl", weight: 20 }
+    ]
+    dataset_percent: 80
+    sampling: "weighted"
+    shuffle: true
+    format: "jsonl"
+    type: "generation"
+    language: "en"
+}
+
+MODEL {
+    base: "oktoseek/base-mini"
+    architecture: "transformer"
+    parameters: 120M
+    context_window: 2048
+    precision: "fp16"
+}
+
+TRAIN {
+    epochs: 10
+    batch_size: 32
+    learning_rate: 0.0001
+    optimizer: "adamw"
+    scheduler: "cosine"
+    device: "cuda"
+    early_stopping: true
+}
+
+METRICS {
+    loss
+    perplexity
+    bleu
+    rouge_l
+}
+
+MONITOR {
+    level: "basic"
+    log_metrics: ["loss", "perplexity"]
+    log_system: ["gpu_memory_used", "cpu_usage"]
+    refresh_interval: 5s
+    export_to: "runs/mixed-dataset/system.json"
+    dashboard: false
+}
+
+EXPORT {
+    format: ["okm"]
+    path: "export/"
+}
+

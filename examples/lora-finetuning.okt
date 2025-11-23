@@ -1,0 +1,99 @@
+# okto_version: "1.1"
+PROJECT "LoRAChatbot"
+DESCRIPTION "Fine-tuning a chatbot using LoRA adapters for efficient training"
+VERSION "1.0"
+AUTHOR "OktoSeek"
+
+DATASET {
+    mix_datasets: [
+        { path: "dataset/base_conversations.jsonl", weight: 60 },
+        { path: "dataset/specialized_qa.jsonl", weight: 30 },
+        { path: "dataset/domain_specific.jsonl", weight: 10 }
+    ]
+    dataset_percent: 75
+    sampling: "weighted"
+    shuffle: true
+    format: "jsonl"
+    type: "chat"
+    language: "en"
+}
+
+MODEL {
+    base: "oktoseek/base-llm-7b"
+    architecture: "transformer"
+    parameters: 7B
+    context_window: 4096
+    precision: "fp16"
+}
+
+FT_LORA {
+    base_model: "oktoseek/base-llm-7b"
+    train_dataset: "dataset/main.jsonl"
+    lora_rank: 8
+    lora_alpha: 32
+    dataset_percent: 75
+    mix_datasets: [
+        { path: "dataset/base_conversations.jsonl", weight: 60 },
+        { path: "dataset/specialized_qa.jsonl", weight: 30 },
+        { path: "dataset/domain_specific.jsonl", weight: 10 }
+    ]
+    epochs: 5
+    batch_size: 4
+    learning_rate: 0.00003
+    device: "cuda"
+    target_modules: ["q_proj", "v_proj", "k_proj", "o_proj"]
+}
+
+METRICS {
+    loss
+    perplexity
+    accuracy
+    f1
+    rouge_l
+}
+
+VALIDATE {
+    on_validation: true
+    frequency: 1
+    save_best_model: true
+    metric_to_monitor: "loss"
+}
+
+MONITOR {
+    level: "full"
+    log_metrics: [
+        "loss",
+        "val_loss",
+        "accuracy",
+        "perplexity"
+    ]
+    log_system: [
+        "gpu_memory_used",
+        "gpu_memory_free",
+        "cpu_usage",
+        "ram_used",
+        "temperature"
+    ]
+    log_speed: [
+        "tokens_per_second",
+        "samples_per_second"
+    ]
+    refresh_interval: 2s
+    export_to: "runs/lora-chatbot/system.json"
+    dashboard: true
+}
+
+EXPORT {
+    format: ["gguf", "okm", "safetensors"]
+    path: "export/"
+    quantization: "int8"
+}
+
+LOGGING {
+    save_logs: true
+    metrics_file: "runs/lora-chatbot/metrics.json"
+    training_file: "runs/lora-chatbot/training_logs.json"
+    log_level: "info"
+    log_every: 10
+}
+

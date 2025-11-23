@@ -43,6 +43,10 @@ Complete reference for validation rules and constraints in OktoScript.
 | type | enum | ❌ No | Must be: classification, generation, qa, chat, vision, regression |
 | language | enum | ❌ No | Must be: en, pt, es, fr, multilingual |
 | augmentation | array | ❌ No | Each item must be valid augmentation type |
+| dataset_percent | number | ❌ No | Must be 1-100 (v1.1+) |
+| mix_datasets | array | ❌ No | Array of {path, weight} objects (v1.1+) |
+| sampling | enum | ❌ No | Must be: weighted, random (v1.1+) |
+| shuffle | boolean | ❌ No | true or false (v1.1+) |
 
 ### MODEL Block
 
@@ -102,6 +106,50 @@ Complete reference for validation rules and constraints in OktoScript.
 - `gguf`: Requires quantization
 - `tflite`: Only for mobile-compatible architectures
 
+### FT_LORA Block (v1.1+)
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| base_model | string | ✅ Yes | Valid model identifier or path |
+| train_dataset | path | ✅ Yes | File/dir must exist if specified |
+| lora_rank | number | ✅ Yes | > 0 and <= 256 |
+| lora_alpha | number | ✅ Yes | > 0 |
+| dataset_percent | number | ❌ No | 1-100 |
+| mix_datasets | array | ❌ No | Array of {path, weight}, total weights = 100 |
+| epochs | number | ❌ No | > 0 and <= 1000 |
+| batch_size | number | ❌ No | > 0 and <= 1024 |
+| learning_rate | decimal | ❌ No | > 0 and <= 1.0 |
+| device | enum | ❌ No | Must be: cpu, cuda, mps, auto |
+| target_modules | array | ❌ No | Array of module names |
+
+**Validation Rules:**
+- If `mix_datasets` is specified, it overrides `train_dataset`
+- Total weights in `mix_datasets` must equal exactly 100
+- `lora_rank` typically: 4, 8, 16, 32
+- `lora_alpha` typically: 16, 32, 64
+- Cannot use both `TRAIN` and `FT_LORA` in same file
+
+### MONITOR Block (v1.1+)
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| level | enum | ❌ No | Must be: basic, full |
+| log_metrics | array | ❌ No | Array of metric names |
+| log_system | array | ❌ No | Array of system metric names |
+| log_speed | array | ❌ No | Array of speed metric names |
+| refresh_interval | string | ❌ No | Format: number + "s" or "ms", >= 1s |
+| export_to | path | ❌ No | Directory must exist or be creatable |
+| dashboard | boolean | ❌ No | true or false |
+
+**System Metrics:**
+- `gpu_memory_used`, `gpu_memory_free`: Only if CUDA available
+- `temperature`: Only if hardware supports it
+
+**Validation Rules:**
+- GPU metrics only validated if CUDA is available
+- `refresh_interval` must be >= 1s
+- `MONITOR` extends `METRICS` and `LOGGING`, does not replace them
+
 ### DEPLOY Block
 
 | Field | Type | Required | Constraints |
@@ -156,6 +204,13 @@ Complete reference for validation rules and constraints in OktoScript.
 - Maximum total dataset size: 100GB
 - Minimum examples: 10 for training
 
+**Dataset Mixing (v1.1+):**
+- If `mix_datasets` is specified, `train` is ignored
+- All paths in `mix_datasets` must exist
+- Total weights must equal exactly 100
+- `dataset_percent` applies to the mixed dataset
+- `sampling: "weighted"` uses weights, `"random"` ignores them
+
 ### Model Validation
 
 **Base model:**
@@ -195,6 +250,10 @@ Complete reference for validation rules and constraints in OktoScript.
 | V008 | Invalid export format | Check format compatibility with model architecture |
 | V009 | Circular inheritance | Remove circular model inheritance chain |
 | V010 | Invalid field value | Check field constraints and allowed values |
+| V011 | Dataset mixing weights invalid | Total weights in mix_datasets must equal 100 |
+| V012 | FT_LORA and TRAIN conflict | Cannot use both TRAIN and FT_LORA in same file |
+| V013 | Version declaration invalid | Version must be "1.0" or "1.1" |
+| V014 | GPU metrics unavailable | GPU metrics requested but CUDA not available |
 
 ---
 

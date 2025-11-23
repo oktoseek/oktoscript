@@ -1,6 +1,10 @@
 <p align="center">
   <img src="./assets/okto_logo.png" alt="OktoScript Banner" width="50%" />
 </p>
+<p align="center">
+  <img src="./assets/okto_logo2.png" alt="OktoScript Banner" width="50%" />
+</p>
+
 
 
 <h1 align="center">OktoScript</h1>
@@ -104,12 +108,22 @@ Every OktoScript project must follow this structure:
     ├── model.gguf
     ├── model.onnx
     └── model.okm
+
+**v1.1 Optional Folders:**
+```
+/runs/
+  └── my-model/
+      ├── logs/
+      │   └── system.json      # MONITOR output (v1.1+)
+      └── lora/                 # LoRA adapters (v1.1+)
+          └── adapter.safetensors
 ```
 
 ---
 
 ## 🧠 OktoScript – Basic Example
 
+**Example (v1.0 - Standard Training):**
 ```okt
 PROJECT "PizzaBot"
 DESCRIPTION "AI specialized in pizza restaurant service"
@@ -135,7 +149,59 @@ EXPORT {
 }
 ```
 
+**Example (v1.1 - LoRA Fine-tuning with Dataset Mixing):**
+```okt
+# okto_version: "1.1"
+PROJECT "PizzaBot"
+DESCRIPTION "AI specialized in pizza restaurant service"
+
+DATASET {
+  mix_datasets: [
+    { path: "dataset/base.jsonl", weight: 70 },
+    { path: "dataset/extra.jsonl", weight: 30 }
+  ]
+  dataset_percent: 80
+  sampling: "weighted"
+}
+
+MODEL {
+  base: "oktoseek/pizza-small"
+}
+
+FT_LORA {
+  base_model: "oktoseek/pizza-small"
+  lora_rank: 8
+  lora_alpha: 32
+  epochs: 3
+  batch_size: 16
+  learning_rate: 0.00003
+  device: "cuda"
+}
+
+MONITOR {
+  level: "full"
+  log_metrics: ["loss", "accuracy"]
+  log_system: ["gpu_memory_used", "cpu_usage"]
+  refresh_interval: 2s
+  dashboard: true
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+```
+
 📘 **Full grammar specification available in** [`/docs/grammar.md`](./docs/grammar.md)
+
+## 🆕 What's New in v1.1
+
+OktoScript v1.1 adds powerful new features while maintaining 100% backward compatibility with v1.0:
+
+- ✅ **LoRA Fine-tuning** - Efficient fine-tuning with `FT_LORA` block
+- ✅ **Dataset Mixing** - Combine multiple datasets with weighted sampling
+- ✅ **System Monitoring** - Advanced telemetry with `MONITOR` block
+- ✅ **Version Declaration** - Specify OktoScript version in your files
 
 📚 **More examples and use cases:** See [`/examples/`](./examples/) for complete examples including:
 
@@ -149,6 +215,10 @@ EXPORT {
 - [`finetuning-llm.okt`](./examples/finetuning-llm.okt) - Fine-tuning LLM with checkpoints and hooks
 - [`vision-pipeline.okt`](./examples/vision-pipeline.okt) - Complete vision pipeline with augmentation
 - [`qa-embeddings.okt`](./examples/qa-embeddings.okt) - QA system with embeddings
+
+**v1.1 Examples:**
+- [`lora-finetuning.okt`](./examples/lora-finetuning.okt) - LoRA fine-tuning with dataset mixing
+- [`dataset-mixing.okt`](./examples/dataset-mixing.okt) - Training with multiple weighted datasets
 
 **Complete Projects:**
 - [`pizzabot/`](./examples/pizzabot/) - Complete project example with full structure
@@ -351,10 +421,11 @@ See [`/examples/`](./examples/) for examples using different export formats.
 
 Complete documentation for OktoScript:
 
-- 📖 **[Grammar Specification](./docs/grammar.md)** - Complete formal grammar with all constraints
+- 📖 **[Grammar Specification](./docs/grammar.md)** - Complete formal grammar with all constraints (v1.0 & v1.1)
 - 🚀 **[Getting Started Guide](./docs/GETTING_STARTED.md)** - Your first 5 minutes with OktoScript
-- ✅ **[Validation Rules](./VALIDATION_RULES.md)** - Complete validation reference
+- ✅ **[Validation Rules](./VALIDATION_RULES.md)** - Complete validation reference (updated for v1.1)
 - 💡 **[Examples](./examples/)** - Working examples from basic to advanced
+- 📋 **[Changelog v1.1](./CHANGELOG_V1.1.md)** - Complete list of v1.1 features
 
 ### Advanced Topics
 
@@ -365,6 +436,8 @@ Complete documentation for OktoScript:
   - [`finetuning-llm.okt`](./examples/finetuning-llm.okt) - Fine-tuning with checkpoints
   - [`vision-pipeline.okt`](./examples/vision-pipeline.okt) - Production vision systems
   - [`qa-embeddings.okt`](./examples/qa-embeddings.okt) - Semantic search and retrieval
+  - [`lora-finetuning.okt`](./examples/lora-finetuning.okt) - LoRA fine-tuning (v1.1)
+  - [`dataset-mixing.okt`](./examples/dataset-mixing.okt) - Dataset mixing (v1.1)
 
 ---
 

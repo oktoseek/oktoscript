@@ -31,6 +31,13 @@ These examples are used by:
 | [`vision-pipeline.okt`](./vision-pipeline.okt) | Complete vision pipeline | Production vision systems, ONNX export |
 | [`qa-embeddings.okt`](./qa-embeddings.okt) | QA with embeddings | Semantic search, retrieval systems |
 
+### v1.1 Examples (New Features)
+
+| File | Description | Use Case |
+|------|-------------|----------|
+| [`lora-finetuning.okt`](./lora-finetuning.okt) | LoRA fine-tuning with dataset mixing | Efficient fine-tuning, memory-efficient training |
+| [`dataset-mixing.okt`](./dataset-mixing.okt) | Training with multiple weighted datasets | Combining datasets, weighted sampling |
+
 ### Complete Projects
 
 | File | Description | Use Case |
