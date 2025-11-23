@@ -1,10 +1,12 @@
 <p align="center">
-  <img src="./assets/okto_logo.png" alt="OktoScript Banner" width="50%" />
+  <img src="./assets/oktoscript_banner.png" alt="OktoScript Banner" width="100%" />
 </p>
 
+<p align="center">
+  <img src="./assets/okto_logo.png" width="80" />
+</p>
 
-
-<h1 align="center">OktoScript</h1>
+<h1 align="center">🐙 OktoScript</h1>
 
 <p align="center">
   <strong>Domain-specific language for AI training, evaluation and deployment</strong>
@@ -176,23 +178,73 @@ METRICS {
 
 ## 🖥️ CLI Commands
 
-When OktoEngine is installed:
+The OktoEngine provides a complete CLI interface for working with OktoScript files. These commands are available both in the terminal and are called by the OktoSeek IDE.
 
+### Main Commands
+
+**Run complete pipeline:**
 ```bash
-okto init
-okto validate
-okto train
-okto eval
-okto export --format=gguf
-okto deploy
+# Executes the entire .okt file: dataset → model → train → evaluate → infer → deploy
+okto run pizzabot.okt
 ```
 
-### Examples:
+**Train a model:**
+```bash
+okto_train --config pizzabot.okt
+```
+
+**Run inference:**
+```bash
+okto_infer --model ./models/pizzabot-v1 --text "Boa noite, quero uma pizza grande"
+
+# Or chat mode:
+okto_infer --model pizzabot-v1 --chat
+```
+
+**Evaluate a model:**
+```bash
+okto_eval --model ./models/pizzabot-v1 --dataset ./datasets/test.jsonl
+```
+
+**Convert formats:**
+```bash
+okto_convert --from pt --to gguf --input ./models/pizzabot-v1.pt --output ./models/pizzabot-v1.gguf
+```
+
+**Validate syntax:**
+```bash
+okto_validate pizzabot.okt
+```
+
+**Deploy model:**
+```bash
+okto_deploy --model pizzabot-v1 --target api --port 8080
+okto_deploy --model pizzabot-v1 --target android
+```
+
+**List resources:**
+```bash
+okto_list projects
+okto_list models
+okto_list datasets
+```
+
+**System diagnostics:**
+```bash
+okto_doctor
+# Shows: GPU, CUDA, RAM, Drivers, Disks, Recommendations
+```
+
+### Quick Examples:
 
 ```bash
-okto train --project PizzaBot
-okto export --format onnx
-okto eval --metrics all
+# Validate and train
+okto validate examples/basic.okt
+okto train examples/chatbot.okt
+
+# Evaluate and export
+okto eval examples/recommender.okt
+okto export examples/computer_vision.okt --format=okm
 ```
 
 ---
@@ -313,4 +365,3 @@ If you have any questions, please raise an issue or contact us at **service@okto
 <p align="center">
   Made with ❤️ by the <strong>OktoSeek AI</strong> team
 </p>
-
