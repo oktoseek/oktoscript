@@ -42,8 +42,9 @@
 10. [Integration Targets](#️-integration-targets)
 11. [VS Code Extension](#-vs-code-extension-coming-soon)
 12. [Documentation](#-documentation)
-13. [License](#-license)
-14. [Contact](#-contact)
+13. [FAQ](#-frequently-asked-questions-faq)
+14. [License](#-license)
+15. [Contact](#-contact)
 
 ---
 
@@ -108,8 +109,10 @@ Every OktoScript project must follow this structure:
     ├── model.gguf
     ├── model.onnx
     └── model.okm
+```
 
 **v1.1 Optional Folders:**
+
 ```
 /runs/
   └── my-model/
@@ -424,6 +427,7 @@ Complete documentation for OktoScript:
 - 📖 **[Grammar Specification](./docs/grammar.md)** - Complete formal grammar with all constraints (v1.0 & v1.1)
 - 🚀 **[Getting Started Guide](./docs/GETTING_STARTED.md)** - Your first 5 minutes with OktoScript
 - ✅ **[Validation Rules](./VALIDATION_RULES.md)** - Complete validation reference (updated for v1.1)
+- ❓ **[FAQ](./docs/FAQ.md)** - Frequently Asked Questions - Common questions and detailed answers
 - 💡 **[Examples](./examples/)** - Working examples from basic to advanced
 - 📋 **[Changelog v1.1](./CHANGELOG_V1.1.md)** - Complete list of v1.1 features
 
@@ -438,6 +442,25 @@ Complete documentation for OktoScript:
   - [`qa-embeddings.okt`](./examples/qa-embeddings.okt) - Semantic search and retrieval
   - [`lora-finetuning.okt`](./examples/lora-finetuning.okt) - LoRA fine-tuning (v1.1)
   - [`dataset-mixing.okt`](./examples/dataset-mixing.okt) - Dataset mixing (v1.1)
+
+---
+
+## ❓ Frequently Asked Questions (FAQ)
+
+Have questions about OktoScript? Check out our comprehensive FAQ covering common questions from beginners to advanced users:
+
+**Common Questions:**
+- Why do I need MODEL and DATASET blocks with FT_LORA?
+- What's the difference between FT_LORA and TRAIN?
+- Does OktoScript replace Python?
+- How do I use multiple datasets with weights?
+- Can I use custom Python code?
+- Is OktoScript a programming language or a DSL?
+- And 15+ more detailed answers...
+
+📖 **[Read the complete FAQ →](./docs/FAQ.md)**
+
+The FAQ covers technical details, design decisions, use cases, and best practices for using OktoScript effectively.
 
 ---
 
