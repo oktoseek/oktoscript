@@ -1,6 +1,14 @@
 PROJECT "PizzaBot"
 DESCRIPTION "AI specialized in pizza restaurant service"
 
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
 DATASET {
   train: "dataset/train.jsonl"
   validation: "dataset/val.jsonl"

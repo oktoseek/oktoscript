@@ -32,6 +32,57 @@ Complete reference for validation rules and constraints in OktoScript.
 |-------|------|----------|-------------|
 | PROJECT | string | ✅ Yes | 1-100 chars, no special chars: `{}[]:"` |
 
+### ENV Block
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| accelerator | enum | ❌ No | Must be: `auto`, `cpu`, `gpu`, `tpu` |
+| min_memory | string | ❌ No | Must be: `"4GB"`, `"8GB"`, `"16GB"`, `"32GB"`, `"64GB"` (quoted, GB suffix required) |
+| precision | enum | ❌ No | Must be: `auto`, `fp16`, `fp32`, `bf16` |
+| backend | enum | ❌ No | Must be: `auto`, `oktoseek` |
+| install_missing | boolean | ❌ No | Must be: `true` or `false` (lowercase) |
+| platform | enum | ❌ No | Must be: `windows`, `linux`, `mac`, `any` |
+| network | enum | ❌ No | Must be: `online`, `offline`, `required` |
+
+**ENV Validation Rules:**
+
+1. **Memory format validation:**
+   - Must use `GB` suffix (e.g., `"8GB"`, not `"8"` or `"8 GB"`)
+   - Only values: `"4GB"`, `"8GB"`, `"16GB"`, `"32GB"`, `"64GB"` are allowed
+   - Must be quoted string
+
+2. **Accelerator and memory compatibility:**
+   - If `accelerator = "gpu"` and `min_memory < "8GB"` → **warning** (GPU training typically requires at least 8GB RAM)
+   - If `accelerator = "tpu"` → `min_memory` should be at least `"16GB"` (recommended)
+
+3. **Network and export compatibility:**
+   - If `network = "offline"` → export formats like `onnx` or `gguf` are allowed (pre-downloaded models)
+   - If `network = "required"` → engine must verify internet connectivity before proceeding
+
+4. **Backend preferences:**
+   - If `backend = "oktoseek"` → preferred default for OktoSeek ecosystem
+   - If `backend = "auto"` → engine selects best available backend
+
+5. **Auto-installation:**
+   - If `install_missing = true` → engine must attempt auto-setup of missing dependencies
+   - If `install_missing = false` → engine must fail with clear error if dependencies are missing
+
+6. **Default values:**
+   - If ENV block is missing, defaults to:
+     ```okt
+     ENV {
+       accelerator: "auto"
+       min_memory: "8GB"
+       backend: "auto"
+     }
+     ```
+
+7. **Platform validation:**
+   - If `platform = "windows"` → engine must verify Windows OS
+   - If `platform = "linux"` → engine must verify Linux OS
+   - If `platform = "mac"` → engine must verify macOS
+   - If `platform = "any"` → no platform check required
+
 ### DATASET Block
 
 | Field | Type | Required | Constraints |

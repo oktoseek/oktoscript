@@ -1,6 +1,12 @@
 PROJECT "BasicModel"
 DESCRIPTION "Minimal OktoScript example - perfect for getting started"
 
+ENV {
+  accelerator: "cpu"
+  min_memory: "4GB"
+  install_missing: true
+}
+
 DATASET {
   train: "examples/datasets/demo_train.jsonl"
 }

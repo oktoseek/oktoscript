@@ -131,6 +131,14 @@ Every OktoScript project must follow this structure:
 PROJECT "PizzaBot"
 DESCRIPTION "AI specialized in pizza restaurant service"
 
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
 DATASET {
   train: "dataset/train.jsonl"
   validation: "dataset/val.jsonl"
@@ -143,11 +151,11 @@ MODEL {
 TRAIN {
   epochs: 5
   batch_size: 32
-  device: "cuda"
+  device: "auto"
 }
 
 EXPORT {
-  format: ["gguf"]
+  format: ["gguf", "onnx", "okm"]
   path: "export/"
 }
 ```
@@ -157,6 +165,14 @@ EXPORT {
 # okto_version: "1.1"
 PROJECT "PizzaBot"
 DESCRIPTION "AI specialized in pizza restaurant service"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
 
 DATASET {
   mix_datasets: [
@@ -178,7 +194,7 @@ FT_LORA {
   epochs: 3
   batch_size: 16
   learning_rate: 0.00003
-  device: "cuda"
+  device: "auto"
 }
 
 MONITOR {
@@ -190,7 +206,7 @@ MONITOR {
 }
 
 EXPORT {
-  format: ["okm"]
+  format: ["okm", "onnx"]
   path: "export/"
 }
 ```

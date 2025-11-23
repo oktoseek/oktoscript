@@ -4,6 +4,16 @@ VERSION "1.0"
 TAGS ["food", "restaurant", "chatbot"]
 AUTHOR "OktoSeek"
 
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+  platform: "any"
+  network: "online"
+}
+
 DATASET {
   train: "dataset/train.jsonl"
   validation: "dataset/val.jsonl"
@@ -27,7 +37,7 @@ TRAIN {
   learning_rate: 0.0001
   optimizer: "adamw"
   scheduler: "cosine"
-  device: "cuda"
+  device: "auto"
   gradient_accumulation: 2
   checkpoint_steps: 100
   early_stopping: true

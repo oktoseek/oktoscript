@@ -10,21 +10,22 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
 
 1. [Grammar Overview](#grammar-overview)
 2. [Basic Metadata Blocks](#basic-metadata-blocks)
-3. [DATASET Block](#dataset-block)
-4. [MODEL Block](#model-block)
-5. [TRAIN Block](#train-block)
-6. [METRICS Block](#metrics-block)
-7. [VALIDATION Block](#validation-block)
-8. [INFERENCE Block](#inference-block)
-9. [EXPORT Block](#export-block)
-10. [DEPLOY Block](#deploy-block)
-11. [SECURITY Block](#security-block)
-12. [LOGGING Block](#logging-block)
-13. [Model Inheritance](#model-inheritance)
-14. [Extension Points & Hooks](#extension-points--hooks)
-15. [Validation Rules](#validation-rules)
-16. [Troubleshooting](#troubleshooting)
-17. [Terminal / Basic Types](#terminal--basic-types)
+3. [ENV Block](#env-block)
+4. [DATASET Block](#dataset-block)
+5. [MODEL Block](#model-block)
+6. [TRAIN Block](#train-block)
+7. [METRICS Block](#metrics-block)
+8. [VALIDATION Block](#validation-block)
+9. [INFERENCE Block](#inference-block)
+10. [EXPORT Block](#export-block)
+11. [DEPLOY Block](#deploy-block)
+12. [SECURITY Block](#security-block)
+13. [LOGGING Block](#logging-block)
+14. [Model Inheritance](#model-inheritance)
+15. [Extension Points & Hooks](#extension-points--hooks)
+16. [Validation Rules](#validation-rules)
+17. [Troubleshooting](#troubleshooting)
+18. [Terminal / Basic Types](#terminal--basic-types)
 
 ---
 
@@ -38,6 +39,7 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
   [<version_block>]
   [<tags_block>]
   [<author_block>]
+  [<env_block>]
   <dataset_block>
   <model_block>
   [<train_block> | <ft_lora_block>]
@@ -55,7 +57,7 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
 **Note:** `TRAIN` and `FT_LORA` are mutually exclusive. Use `FT_LORA` for LoRA-based fine-tuning, or `TRAIN` for full fine-tuning.
 
 **Required blocks:** PROJECT, DATASET, MODEL, TRAIN  
-**Optional blocks:** All others
+**Optional blocks:** ENV, DESCRIPTION, VERSION, TAGS, AUTHOR, and all others
 
 ---
 
