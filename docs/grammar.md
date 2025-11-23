@@ -165,6 +165,162 @@ AUTHOR "OktoSeek"
 
 ---
 
+## ENV Block
+
+The `ENV` block defines environment requirements, hardware expectations, and execution preferences for OktoEngine. It is fully abstract and does not expose underlying implementation details (Python, PyTorch, TensorFlow, etc.). OktoEngine uses this block to configure the execution environment before running any training or inference operations.
+
+**Purpose:**
+- Define minimum environment requirements for a project
+- Specify hardware preferences (CPU, GPU, TPU)
+- Set memory and precision requirements
+- Configure execution backend preferences
+- Enable automatic dependency installation
+- Specify platform and network requirements
+
+**Note:** ENV is not a dependency list. It is a high-level execution requirement description that allows OktoEngine to decide how to configure the real execution environment.
+
+### ENV Block Syntax
+
+```ebnf
+<env_block> ::=
+  "ENV" "{"
+      [<env_accelerator>]
+      [<env_min_memory>]
+      [<env_precision>]
+      [<env_backend>]
+      [<env_install_missing>]
+      [<env_platform>]
+      [<env_network>]
+  "}"
+
+<env_accelerator> ::=
+  "accelerator" ":" ("auto" | "cpu" | "gpu" | "tpu")
+
+<env_min_memory> ::=
+  "min_memory" ":" <memory_string>
+
+<memory_string> ::=
+  "4GB" | "8GB" | "16GB" | "32GB" | "64GB"
+
+<env_precision> ::=
+  "precision" ":" ("auto" | "fp16" | "fp32" | "bf16")
+
+<env_backend> ::=
+  "backend" ":" ("auto" | "oktoseek")
+
+<env_install_missing> ::=
+  "install_missing" ":" ("true" | "false")
+
+<env_platform> ::=
+  "platform" ":" ("windows" | "linux" | "mac" | "any")
+
+<env_network> ::=
+  "network" ":" ("online" | "offline" | "required")
+```
+
+### ENV Block Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `accelerator` | enum | ❌ No | `"auto"` | Preferred compute unit: `"auto"`, `"cpu"`, `"gpu"`, `"tpu"` |
+| `min_memory` | string | ❌ No | `"8GB"` | Required minimum RAM: `"4GB"`, `"8GB"`, `"16GB"`, `"32GB"`, `"64GB"` |
+| `precision` | enum | ❌ No | `"auto"` | Numerical precision: `"auto"`, `"fp16"`, `"fp32"`, `"bf16"` |
+| `backend` | enum | ❌ No | `"auto"` | Execution engine: `"auto"`, `"oktoseek"` |
+| `install_missing` | boolean | ❌ No | `false` | If `true`, engine attempts automatic dependency installation |
+| `platform` | enum | ❌ No | `"any"` | Target OS: `"windows"`, `"linux"`, `"mac"`, `"any"` |
+| `network` | enum | ❌ No | `"online"` | Internet requirement: `"online"`, `"offline"`, `"required"` |
+
+### ENV Block Examples
+
+**Minimal ENV (uses defaults):**
+```okt
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+}
+```
+
+**Complete ENV configuration:**
+```okt
+ENV {
+  accelerator: "gpu"
+  min_memory: "16GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+  platform: "any"
+  network: "online"
+}
+```
+
+**CPU-only training:**
+```okt
+ENV {
+  accelerator: "cpu"
+  min_memory: "8GB"
+  precision: "fp32"
+  install_missing: true
+}
+```
+
+**Offline execution:**
+```okt
+ENV {
+  accelerator: "gpu"
+  min_memory: "16GB"
+  network: "offline"
+  install_missing: false
+}
+```
+
+### ENV Block Constraints
+
+1. **Memory format:** Must use `GB` suffix (e.g., `"8GB"`, not `"8"` or `"8 GB"`)
+2. **Enum values:** Only predefined values are allowed
+3. **Boolean values:** Must be `true` or `false` (lowercase)
+4. **String values:** Must be quoted
+
+### ENV Block Validation Rules
+
+1. If `accelerator = "gpu"` and `min_memory < "8GB"` → **warning** (GPU training typically requires at least 8GB)
+2. If `network = "offline"` → export formats like `onnx` or `gguf` are allowed (pre-downloaded models)
+3. If `backend = "oktoseek"` → preferred default for OktoSeek ecosystem
+4. If `install_missing = true` → engine must attempt auto-setup of missing dependencies
+5. If no ENV block exists → defaults to:
+   ```okt
+   ENV {
+     accelerator: "auto"
+     min_memory: "8GB"
+     backend: "auto"
+   }
+   ```
+
+### Engine Behavior
+
+When OktoEngine encounters an ENV block, it must:
+
+1. **Read ENV block first:** Before any other stage (dataset loading, model initialization, etc.)
+2. **Check system compatibility:** Verify RAM, GPU availability, platform, etc.
+3. **Return detailed errors:** If system is incompatible, return specific error messages
+4. **Auto-install dependencies:** If `install_missing: true`, attempt automatic setup
+5. **Generate environment report:** Log analysis to `runs/{model}/env_report.json`
+
+**Example env_report.json:**
+```json
+{
+  "gpu_found": true,
+  "gpu_name": "NVIDIA RTX 3090",
+  "ram": "32GB",
+  "ram_available": "28GB",
+  "platform": "linux",
+  "status": "compatible",
+  "auto_install": true,
+  "warnings": []
+}
+```
+
+---
+
 ## DATASET Block
 
 ```ebnf
