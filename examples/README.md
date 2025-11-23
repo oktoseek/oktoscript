@@ -14,12 +14,27 @@ These examples are used by:
 
 ## Available Examples
 
+### Basic Examples
+
 | File | Description | Use Case |
 |------|-------------|----------|
 | [`basic.okt`](./basic.okt) | Minimal example | Getting started |
 | [`chatbot.okt`](./chatbot.okt) | Conversational AI | Customer service, assistants |
 | [`computer_vision.okt`](./computer_vision.okt) | Image classification | Vision models, object detection |
 | [`recommender.okt`](./recommender.okt) | Recommendation system | E-commerce, content suggestions |
+
+### Advanced Examples
+
+| File | Description | Use Case |
+|------|-------------|----------|
+| [`finetuning-llm.okt`](./finetuning-llm.okt) | Fine-tuning LLM with checkpoints | Advanced language models, resume training |
+| [`vision-pipeline.okt`](./vision-pipeline.okt) | Complete vision pipeline | Production vision systems, ONNX export |
+| [`qa-embeddings.okt`](./qa-embeddings.okt) | QA with embeddings | Semantic search, retrieval systems |
+
+### Complete Projects
+
+| File | Description | Use Case |
+|------|-------------|----------|
 | [`pizzabot/`](./pizzabot/) | Complete project example | Full workflow demonstration |
 
 ---

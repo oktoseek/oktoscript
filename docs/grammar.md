@@ -4,6 +4,28 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
 
 ---
 
+## Table of Contents
+
+1. [Grammar Overview](#grammar-overview)
+2. [Basic Metadata Blocks](#basic-metadata-blocks)
+3. [DATASET Block](#dataset-block)
+4. [MODEL Block](#model-block)
+5. [TRAIN Block](#train-block)
+6. [METRICS Block](#metrics-block)
+7. [VALIDATION Block](#validation-block)
+8. [INFERENCE Block](#inference-block)
+9. [EXPORT Block](#export-block)
+10. [DEPLOY Block](#deploy-block)
+11. [SECURITY Block](#security-block)
+12. [LOGGING Block](#logging-block)
+13. [Model Inheritance](#model-inheritance)
+14. [Extension Points & Hooks](#extension-points--hooks)
+15. [Validation Rules](#validation-rules)
+16. [Troubleshooting](#troubleshooting)
+17. [Terminal / Basic Types](#terminal--basic-types)
+
+---
+
 ## Grammar Overview
 
 ```ebnf
@@ -23,7 +45,11 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
   [<deploy_block>]
   [<security_block>]
   [<logging_block>]
+  [<hooks_block>]
 ```
+
+**Required blocks:** PROJECT, DATASET, MODEL, TRAIN  
+**Optional blocks:** All others
 
 ---
 
@@ -35,6 +61,10 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
 <project_block> ::= 
   "PROJECT" <string>
 ```
+
+**Constraints:**
+- Project name must be a valid string (1-100 characters)
+- Cannot contain special characters: `{`, `}`, `[`, `]`, `:`, `"`
 
 **Example:**
 ```okt
@@ -48,6 +78,10 @@ PROJECT "PizzaBot"
   "DESCRIPTION" <string>
 ```
 
+**Constraints:**
+- Maximum 500 characters
+- Can contain any UTF-8 characters
+
 **Example:**
 ```okt
 DESCRIPTION "AI specialized in pizza restaurant service"
@@ -60,9 +94,14 @@ DESCRIPTION "AI specialized in pizza restaurant service"
   "VERSION" <string>
 ```
 
+**Constraints:**
+- Must follow semantic versioning (e.g., "1.0.0", "2.1.3")
+- Format: `major.minor.patch` or `major.minor`
+
 **Example:**
 ```okt
 VERSION "1.0"
+VERSION "2.1.3"
 ```
 
 ### TAGS Block
@@ -71,6 +110,11 @@ VERSION "1.0"
 <tags_block> ::= 
   "TAGS" "[" <string_list> "]"
 ```
+
+**Constraints:**
+- Maximum 10 tags
+- Each tag: 1-50 characters
+- Tags are case-insensitive
 
 **Example:**
 ```okt
@@ -127,15 +171,31 @@ AUTHOR "OktoSeek"
   "augmentation" ":" "[" <string_list> "]"
 ```
 
+**Allowed augmentation values:**
+- `"flip"` - Horizontal/vertical flip
+- `"rotate"` - Random rotation
+- `"brightness"` - Brightness adjustment
+- `"contrast"` - Contrast adjustment
+- `"noise"` - Add noise
+- `"crop"` - Random cropping
+- `"translate"` - Translation
+
+**Validation Rules:**
+- `train` path must exist and be readable
+- File format must match declared `format`
+- For `image+caption`, path must be a directory
+- For JSONL/CSV, path must be a file
+
 **Example:**
 ```okt
 DATASET {
-  train: "dataset/train.jsonl"
-  validation: "dataset/val.jsonl"
-  test: "dataset/test.jsonl"
-  format: "jsonl"
-  type: "chat"
-  language: "en"
+    train: "dataset/train.jsonl"
+    validation: "dataset/val.jsonl"
+    test: "dataset/test.jsonl"
+    format: "jsonl"
+    type: "chat"
+    language: "en"
+    augmentation: ["flip", "rotate", "brightness"]
 }
 ```
 
@@ -151,32 +211,70 @@ DATASET {
       [<model_parameters>]
       [<model_context_window>]
       [<model_precision>]
+      [<model_inherit>]
   "}"
 
 <model_base> ::=
   "base" ":" <string>
 
 <model_architecture> ::=
-  "architecture" ":" ("transformer" | "cnn" | "rnn" | "diffusion" | "vision-transformer")
+  "architecture" ":" ("transformer" | "cnn" | "rnn" | "diffusion" | "vision-transformer" | "bert" | "gpt" | "t5")
 
 <model_parameters> ::=
-  "parameters" ":" <number> ("M" | "B")
+  "parameters" ":" <number> ("M" | "B" | "K")
 
 <model_context_window> ::=
   "context_window" ":" <number>
 
 <model_precision> ::=
   "precision" ":" ("fp32" | "fp16" | "int8" | "int4")
+
+<model_inherit> ::=
+  "inherit" ":" <string>
 ```
+
+**Model Inheritance:**
+- `inherit` allows reusing configuration from another model
+- Inherited model must be defined in the same project or imported
+- Child model can override any parent field
+- Example: `inherit: "base-transformer"` loads base config, then applies current block
+
+**Allowed base model formats:**
+- HuggingFace format: `"username/model-name"`
+- OktoSeek format: `"oktoseek/model-name"`
+- Local path: `"./models/my-model"`
+- URL: `"https://example.com/model"`
+
+**Parameter constraints:**
+- `parameters`: Must be positive number with suffix (K, M, B)
+- `context_window`: Must be power of 2 (128, 256, 512, 1024, 2048, 4096, 8192)
+- `precision`: Must match device capabilities
 
 **Example:**
 ```okt
 MODEL {
-  base: "oktoseek/pizza-small"
-  architecture: "transformer"
-  parameters: 120M
-  context_window: 2048
-  precision: "fp16"
+    base: "oktoseek/pizza-small"
+    architecture: "transformer"
+    parameters: 120M
+    context_window: 2048
+    precision: "fp16"
+}
+```
+
+**Example with inheritance:**
+```okt
+# Base model definition
+MODEL "base-transformer" {
+    architecture: "transformer"
+    context_window: 2048
+    precision: "fp16"
+}
+
+# Child model inheriting from base
+MODEL {
+    inherit: "base-transformer"
+    base: "oktoseek/custom-model"
+    parameters: 250M
 }
 ```
 
@@ -196,6 +294,13 @@ MODEL {
       [<gradient_accumulation>]
       [<early_stopping>]
       [<checkpoint_steps>]
+      [<checkpoint_path>]
+      [<resume_from_checkpoint>]
+      [<loss_function>]
+      [<weight_decay>]
+      [<gradient_clip>]
+      [<warmup_steps>]
+      [<save_strategy>]
   "}"
 
 <train_epochs> ::= 
@@ -208,13 +313,13 @@ MODEL {
   "learning_rate" ":" <decimal>
 
 <train_optimizer> ::= 
-  "optimizer" ":" ( "adam" | "adamw" | "sgd" | "rmsprop" )
+  "optimizer" ":" ( "adam" | "adamw" | "sgd" | "rmsprop" | "adafactor" | "lamb" )
 
 <train_scheduler> ::= 
-  "scheduler" ":" ("linear" | "cosine" | "step")
+  "scheduler" ":" ("linear" | "cosine" | "cosine_with_restarts" | "polynomial" | "constant" | "constant_with_warmup" | "step")
 
 <train_device> ::= 
-  "device" ":" ("cpu" | "cuda" | "mps")
+  "device" ":" ("cpu" | "cuda" | "mps" | "auto")
 
 <gradient_accumulation> ::= 
   "gradient_accumulation" ":" <number>
@@ -224,20 +329,97 @@ MODEL {
 
 <checkpoint_steps> ::= 
   "checkpoint_steps" ":" <number>
+
+<checkpoint_path> ::=
+  "checkpoint_path" ":" <path>
+
+<resume_from_checkpoint> ::=
+  "resume_from_checkpoint" ":" <path>
+
+<loss_function> ::=
+  "loss" ":" ("cross_entropy" | "mse" | "mae" | "bce" | "focal" | "huber" | "kl_divergence")
+
+<weight_decay> ::=
+  "weight_decay" ":" <decimal>
+
+<gradient_clip> ::=
+  "gradient_clip" ":" <decimal>
+
+<warmup_steps> ::=
+  "warmup_steps" ":" <number>
+
+<save_strategy> ::=
+  "save_strategy" ":" ("steps" | "epoch" | "no")
 ```
+
+**Allowed values and constraints:**
+
+**Optimizers:**
+- `adam` - Adam optimizer (default)
+- `adamw` - Adam with weight decay
+- `sgd` - Stochastic Gradient Descent
+- `rmsprop` - RMSprop optimizer
+- `adafactor` - Adafactor (memory efficient)
+- `lamb` - LAMB optimizer (for large batches)
+
+**Schedulers:**
+- `linear` - Linear decay
+- `cosine` - Cosine annealing
+- `cosine_with_restarts` - Cosine with restarts
+- `polynomial` - Polynomial decay
+- `constant` - Constant learning rate
+- `constant_with_warmup` - Constant with warmup
+- `step` - Step decay
+
+**Loss functions:**
+- `cross_entropy` - Cross-entropy loss (classification)
+- `mse` - Mean Squared Error (regression)
+- `mae` - Mean Absolute Error (regression)
+- `bce` - Binary Cross-Entropy
+- `focal` - Focal loss (imbalanced data)
+- `huber` - Huber loss (robust regression)
+- `kl_divergence` - KL divergence
+
+**Constraints:**
+- `epochs`: Must be > 0 and <= 1000
+- `batch_size`: Must be > 0 and <= 1024
+- `learning_rate`: Must be > 0 and <= 1.0
+- `gradient_accumulation`: Must be >= 1
+- `checkpoint_steps`: Must be > 0
+- `weight_decay`: Must be >= 0 and <= 1.0
+- `gradient_clip`: Must be > 0
 
 **Example:**
 ```okt
 TRAIN {
-  epochs: 5
-  batch_size: 32
-  learning_rate: 0.0001
-  optimizer: "adamw"
-  scheduler: "cosine"
-  device: "cuda"
-  gradient_accumulation: 2
-  checkpoint_steps: 100
-  early_stopping: true
+    epochs: 10
+    batch_size: 32
+    learning_rate: 0.00025
+    optimizer: "adamw"
+    scheduler: "cosine"
+    loss: "cross_entropy"
+    device: "cuda"
+    gradient_accumulation: 2
+    early_stopping: true
+    checkpoint_steps: 100
+    checkpoint_path: "./checkpoints"
+    weight_decay: 0.01
+    gradient_clip: 1.0
+    warmup_steps: 500
+    save_strategy: "steps"
+}
+```
+
+**Example with checkpoint resume:**
+```okt
+TRAIN {
+    epochs: 20
+    batch_size: 16
+    learning_rate: 0.0001
+    optimizer: "adamw"
+    device: "cuda"
+    resume_from_checkpoint: "./checkpoints/checkpoint-500"
+    checkpoint_steps: 100
 }
 ```
 
@@ -256,27 +438,48 @@ TRAIN {
   "loss" |
   "perplexity" |
   "f1" |
+  "f1_macro" |
+  "f1_micro" |
+  "f1_weighted" |
   "bleu" |
   "rouge" |
+  "rouge_l" |
+  "rouge_1" |
+  "rouge_2" |
   "mae" |
   "mse" |
+  "rmse" |
   "cosine_similarity" |
   "token_efficiency" |
   "response_coherence" |
-  "hallucination_score"
+  "hallucination_score" |
+  "precision" |
+  "recall" |
+  "confusion_matrix"
 
 <custom_metric> ::= 
   "custom" <string>
 ```
 
+**Metric-specific constraints:**
+- `accuracy`: Only for classification tasks
+- `perplexity`: Only for language models
+- `bleu`, `rouge`: Only for generation/translation tasks
+- `mae`, `mse`, `rmse`: Only for regression tasks
+- `confusion_matrix`: Only for classification, generates full matrix
+
 **Example:**
 ```okt
 METRICS {
-  accuracy
-  perplexity
-  f1
-  rouge
-  cosine_similarity
+    accuracy
+    loss
+    perplexity
+    f1
+    f1_macro
+    rouge_l
+    cosine_similarity
+    custom "toxicity_score"
+    custom "context_alignment"
 }
 ```
 
@@ -290,15 +493,24 @@ METRICS {
       [ "on_train" ":" ("true" | "false") ]
       [ "on_validation" ":" ("true" | "false") ]
       [ "frequency" ":" <number> ]
+      [ "save_best_model" ":" ("true" | "false") ]
+      [ "metric_to_monitor" ":" <string> ]
   "}"
 ```
+
+**Constraints:**
+- `frequency`: Must be > 0 (validation every N steps)
+- `metric_to_monitor`: Must be a metric defined in METRICS block
+- `save_best_model`: If true, saves model when monitored metric improves
 
 **Example:**
 ```okt
 VALIDATE {
-  on_train: true
-  on_validation: true
-  frequency: 1
+    on_train: false
+    on_validation: true
+    frequency: 1
+    save_best_model: true
+    metric_to_monitor: "loss"
 }
 ```
 
@@ -313,16 +525,27 @@ VALIDATE {
       "temperature" ":" <decimal>
       "top_p" ":" <decimal>
       "top_k" ":" <number>
+      [ "repetition_penalty" ":" <decimal> ]
+      [ "stop_sequences" ":" "[" <string_list> "]" ]
   "}"
 ```
+
+**Constraints:**
+- `max_tokens`: Must be > 0 and <= 8192
+- `temperature`: Must be >= 0.0 and <= 2.0
+- `top_p`: Must be > 0.0 and <= 1.0
+- `top_k`: Must be >= 0 (0 = disabled)
+- `repetition_penalty`: Must be > 0.0 and <= 2.0
 
 **Example:**
 ```okt
 INFERENCE {
-  max_tokens: 200
-  temperature: 0.7
-  top_p: 0.9
-  top_k: 40
+    max_tokens: 200
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 40
+    repetition_penalty: 1.1
+    stop_sequences: ["\n\n", "Human:", "Assistant:"]
 }
 ```
 
@@ -335,7 +558,8 @@ INFERENCE {
   "EXPORT" "{"
       "format" ":" "[" <export_format_list> "]"
       "path" ":" <path>
-      [ "quantization" ":" ("int8" | "int4" | "fp16") ]
+      [ "quantization" ":" ("int8" | "int4" | "fp16" | "fp32") ]
+      [ "optimize_for" ":" ("speed" | "size" | "accuracy") ]
   "}"
 
 <export_format_list> ::= 
@@ -346,12 +570,20 @@ INFERENCE {
   "tflite"
 ```
 
+**Format-specific constraints:**
+- `gguf`: Requires quantization (int8, int4, or fp16)
+- `onnx`: Best for production deployment
+- `okm`: OktoSeek optimized format (requires OktoSeek SDK)
+- `safetensors`: Standard PyTorch format
+- `tflite`: For mobile deployment (Android/iOS)
+
 **Example:**
 ```okt
 EXPORT {
-  format: ["gguf", "onnx", "okm", "safetensors"]
-  path: "export/"
-  quantization: "int8"
+    format: ["gguf", "onnx", "okm", "safetensors"]
+    path: "export/"
+    quantization: "int8"
+    optimize_for: "speed"
 }
 ```
 
@@ -362,18 +594,28 @@ EXPORT {
 ```ebnf
 <deploy_block> ::= 
   "DEPLOY" "{"
-      "target" ":" ("local" | "cloud" | "edge" | "api")
+      "target" ":" ("local" | "cloud" | "edge" | "api" | "android" | "ios" | "web" | "desktop")
       [ "endpoint" ":" <string> ]
       [ "requires_auth" ":" ("true" | "false") ]
+      [ "port" ":" <number> ]
+      [ "max_concurrent_requests" ":" <number> ]
   "}"
 ```
+
+**Target-specific requirements:**
+- `api`: Requires `endpoint` and `port`
+- `android`, `ios`: Requires `.okm` or `.tflite` format in EXPORT
+- `web`: Requires ONNX format
+- `edge`: Requires quantized model (int8 or int4)
 
 **Example:**
 ```okt
 DEPLOY {
-  target: "api"
-  endpoint: "http://localhost:9000/pizzabot"
-  requires_auth: true
+    target: "api"
+    endpoint: "http://localhost:9000/pizzabot"
+    requires_auth: true
+    port: 9000
+    max_concurrent_requests: 100
 }
 ```
 
@@ -386,14 +628,16 @@ DEPLOY {
   "SECURITY" "{"
       [ "encrypt_model" ":" ("true" | "false") ]
       [ "watermark" ":" ("true" | "false") ]
+      [ "access_token" ":" <string> ]
   "}"
 ```
 
 **Example:**
 ```okt
 SECURITY {
-  encrypt_model: true
-  watermark: true
+    encrypt_model: true
+    watermark: true
+    access_token: "your-secret-token"
 }
 ```
 
@@ -407,15 +651,319 @@ SECURITY {
       "save_logs" ":" ("true" | "false")
       "metrics_file" ":" <path>
       "training_file" ":" <path>
+      [ "log_level" ":" ("debug" | "info" | "warning" | "error") ]
+      [ "log_every" ":" <number> ]
   "}"
 ```
 
 **Example:**
 ```okt
 LOGGING {
-  save_logs: true
-  metrics_file: "runs/pizzabot-v1/metrics.json"
-  training_file: "runs/pizzabot-v1/training_logs.json"
+    save_logs: true
+    metrics_file: "runs/pizzabot-v1/metrics.json"
+    training_file: "runs/pizzabot-v1/training_logs.json"
+    log_level: "info"
+    log_every: 10
+}
+```
+
+---
+
+## Model Inheritance
+
+OktoScript supports model inheritance to reduce code duplication and enable configuration reuse.
+
+**Syntax:**
+```okt
+# Base model definition (named)
+MODEL "base-transformer" {
+    architecture: "transformer"
+    context_window: 2048
+    precision: "fp16"
+}
+
+# Child model inheriting from base
+MODEL {
+    inherit: "base-transformer"
+    base: "oktoseek/custom-model"
+    parameters: 250M
+    # Overrides: precision stays "fp16" from parent
+    # New: base and parameters are set
+}
+```
+
+**Inheritance rules:**
+1. Child model inherits all fields from parent
+2. Child can override any inherited field
+3. Fields not specified in child use parent values
+4. Inheritance chain can be multiple levels (parent → child → grandchild)
+5. Circular inheritance is not allowed
+
+**Example with multiple inheritance:**
+```okt
+# Grandparent
+MODEL "base-config" {
+    architecture: "transformer"
+    precision: "fp16"
+}
+
+# Parent
+MODEL "medium-model" {
+    inherit: "base-config"
+    parameters: 120M
+    context_window: 2048
+}
+
+# Child
+MODEL {
+    inherit: "medium-model"
+    base: "oktoseek/specialized-model"
+    parameters: 250M
+}
+```
+
+---
+
+## Extension Points & Hooks
+
+OktoScript supports extension points for custom logic integration.
+
+### HOOKS Block
+
+```ebnf
+<hooks_block> ::=
+  "HOOKS" "{"
+      [ "before_train" ":" <script_path> ]
+      [ "after_train" ":" <script_path> ]
+      [ "before_epoch" ":" <script_path> ]
+      [ "after_epoch" ":" <script_path> ]
+      [ "on_checkpoint" ":" <script_path> ]
+      [ "custom_metric" ":" <script_path> ]
+  "}"
+```
+
+**Hook script format:**
+- Python scripts (`.py`) - Most common
+- JavaScript/Node.js (`.js`) - For web integrations
+- Shell scripts (`.sh`) - For system operations
+
+**Hook script interface:**
+```python
+# before_train.py
+def before_train(config, dataset, model):
+    # Custom preprocessing
+    # Modify config if needed
+    return config
+
+# after_epoch.py
+def after_epoch(epoch, metrics, model_state):
+    # Custom logging, early stopping logic
+    # Return True to stop training
+    return False
+```
+
+**Example:**
+```okt
+HOOKS {
+    before_train: "scripts/preprocess.py"
+    after_epoch: "scripts/custom_early_stop.py"
+    on_checkpoint: "scripts/backup_checkpoint.sh"
+    custom_metric: "scripts/toxicity_calculator.py"
+}
+```
+
+### Python Integration
+
+OktoScript can call Python functions directly:
+
+```okt
+HOOKS {
+    before_train: "python:my_module.preprocess_data"
+    custom_metric: "python:metrics.custom_f1_score"
+}
+```
+
+### API Integration
+
+```okt
+HOOKS {
+    after_train: "api:https://api.example.com/log_training"
+    on_checkpoint: "api:https://api.example.com/upload_checkpoint"
+}
+```
+
+---
+
+## Validation Rules
+
+### File Structure Validation
+
+1. **Required files:**
+   - `okt.yaml` must exist in project root
+   - Dataset files specified in DATASET block must exist
+   - Model base path must be valid (if local path)
+
+2. **Field validation:**
+   - All required fields must be present
+   - Field types must match grammar specification
+   - Numeric values must be within allowed ranges
+   - String values must match allowed patterns
+
+3. **Dependency validation:**
+   - If `inherit` is used, parent model must exist
+   - If `resume_from_checkpoint` is used, checkpoint must exist
+   - Export formats must be compatible with model architecture
+
+### Runtime Validation
+
+**Dataset validation:**
+- File exists and is readable
+- Format matches declared format
+- Required columns/fields present (for structured data)
+- File size within limits (max 10GB per file)
+
+**Model validation:**
+- Base model exists (if local) or is downloadable (if remote)
+- Model architecture compatible with dataset type
+- Model size fits available memory
+
+**Training validation:**
+- Device available (GPU if specified)
+- Sufficient disk space for checkpoints
+- Batch size fits in memory
+
+### Error Messages
+
+Common validation errors and solutions:
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `Dataset file not found` | Path in DATASET block doesn't exist | Check file path, use absolute or relative path |
+| `Invalid optimizer: 'invalid'` | Optimizer not in allowed list | Use one of: adam, adamw, sgd, rmsprop, adafactor, lamb |
+| `Model base not found` | Base model path invalid | Verify model path or HuggingFace model name |
+| `Checkpoint not found` | Resume checkpoint doesn't exist | Check checkpoint path or remove resume_from_checkpoint |
+| `Insufficient memory` | Batch size too large | Reduce batch_size or enable gradient_accumulation |
+| `Invalid metric for task` | Metric incompatible with task type | Use appropriate metrics (e.g., accuracy for classification) |
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+**1. Training fails with "Out of Memory"**
+
+**Symptoms:**
+- CUDA out of memory error
+- Training crashes after a few steps
+
+**Solutions:**
+```okt
+TRAIN {
+    batch_size: 8  # Reduce from 32
+    gradient_accumulation: 4  # Increase to maintain effective batch size
+    precision: "fp16"  # Use mixed precision
+}
+```
+
+**2. Model not improving (loss plateau)**
+
+**Symptoms:**
+- Loss stops decreasing
+- Metrics remain constant
+
+**Solutions:**
+```okt
+TRAIN {
+    learning_rate: 0.0001  # Try different learning rate
+    scheduler: "cosine_with_restarts"  # Use learning rate schedule
+    weight_decay: 0.01  # Add regularization
+}
+
+VALIDATE {
+    save_best_model: true
+    metric_to_monitor: "loss"
+}
+```
+
+**3. Dataset format errors**
+
+**Symptoms:**
+- "Invalid dataset format"
+- "Missing required columns"
+
+**Solutions:**
+- Verify dataset format matches declared format
+- For JSONL: Ensure each line is valid JSON with required fields
+- For CSV: Check column names match expected schema
+- Use `okto validate` to check dataset before training
+
+**4. Export fails**
+
+**Symptoms:**
+- "Export format not supported"
+- "Quantization failed"
+
+**Solutions:**
+- Ensure model architecture supports export format
+- For GGUF: Model must be quantized (use int8 or int4)
+- For ONNX: Model must be ONNX-compatible architecture
+- Check available disk space
+
+**5. Inference produces poor results**
+
+**Symptoms:**
+- Low quality outputs
+- Repetitive text
+- Off-topic responses
+
+**Solutions:**
+```okt
+INFERENCE {
+    temperature: 0.7  # Lower = more deterministic
+    top_p: 0.9  # Nucleus sampling
+    top_k: 40  # Limit vocabulary
+    repetition_penalty: 1.2  # Reduce repetition
+    max_tokens: 200  # Limit length
+}
+```
+
+### Debug Mode
+
+Enable debug logging:
+
+```okt
+LOGGING {
+    save_logs: true
+    log_level: "debug"
+    log_every: 1
+}
+```
+
+Run with verbose output:
+```bash
+okto run project.okt --verbose --debug
+```
+
+### Performance Optimization
+
+**For faster training:**
+```okt
+TRAIN {
+    batch_size: 64  # Larger batches
+    gradient_accumulation: 1  # No accumulation
+    mixed_precision: true  # FP16
+    device: "cuda"
+}
+```
+
+**For memory efficiency:**
+```okt
+TRAIN {
+    batch_size: 4
+    gradient_accumulation: 8
+    precision: "fp16"
+    checkpoint_steps: 50  # Save more frequently
 }
 ```
 
@@ -437,11 +985,23 @@ LOGGING {
 digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 ```
 
+**Type constraints:**
+- `string`: UTF-8 encoded, max 10,000 characters
+- `path`: Can be absolute or relative, must be valid filesystem path
+- `number`: Integer, range depends on field (typically 0 to 2^31-1)
+- `decimal`: Floating point, precision up to 6 decimal places
+
 ---
 
-## Complete Example
+## Complete Examples
 
-See [`../examples/pizzabot/scripts/train.okt`](../examples/pizzabot/scripts/train.okt) for a complete working example.
+See [`../examples/`](../examples/) for complete working examples:
+
+- [`basic.okt`](../examples/basic.okt) - Minimal example
+- [`chatbot.okt`](../examples/chatbot.okt) - Conversational AI
+- [`computer_vision.okt`](../examples/computer_vision.okt) - Image classification
+- [`recommender.okt`](../examples/recommender.okt) - Recommendation system
+- [`pizzabot/`](../examples/pizzabot/) - Complete project example
 
 📊 **Example datasets available in** [`../examples/pizzabot/dataset/`](../examples/pizzabot/dataset/)
 

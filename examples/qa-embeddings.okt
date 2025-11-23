@@ -1,0 +1,83 @@
+PROJECT "QAEmbeddings"
+DESCRIPTION "Question-Answering system with embeddings and similarity search"
+VERSION "1.0"
+AUTHOR "OktoSeek"
+
+DATASET {
+    train: "dataset/qa_train.jsonl"
+    validation: "dataset/qa_val.jsonl"
+    format: "qa"
+    type: "qa"
+    language: "en"
+}
+
+MODEL {
+    base: "oktoseek/qa-encoder"
+    architecture: "bert"
+    parameters: 110M
+    context_window: 512
+    precision: "fp16"
+}
+
+TRAIN {
+    epochs: 10
+    batch_size: 16
+    learning_rate: 0.00005
+    optimizer: "adamw"
+    scheduler: "linear"
+    loss: "cross_entropy"
+    device: "cuda"
+    gpu: true
+    mixed_precision: true
+    early_stopping: true
+    checkpoint_steps: 200
+    weight_decay: 0.01
+    gradient_clip: 1.0
+    warmup_steps: 500
+}
+
+METRICS {
+    accuracy
+    f1
+    f1_macro
+    cosine_similarity
+    custom "retrieval_accuracy"
+}
+
+VALIDATE {
+    on_validation: true
+    frequency: 1
+    save_best_model: true
+    metric_to_monitor: "f1"
+}
+
+INFERENCE {
+    max_tokens: 256
+    temperature: 0.3
+    top_p: 0.95
+    top_k: 20
+}
+
+EXPORT {
+    format: ["onnx", "okm", "safetensors"]
+    path: "export/"
+    quantization: "int8"
+    optimize_for: "accuracy"
+}
+
+DEPLOY {
+    target: "api"
+    endpoint: "http://localhost:9000/qa"
+    requires_auth: true
+    port: 9000
+    max_concurrent_requests: 200
+}
+
+LOGGING {
+    save_logs: true
+    metrics_file: "runs/qa-embeddings/metrics.json"
+    training_file: "runs/qa-embeddings/training_logs.json"
+    log_level: "info"
+    log_every: 20
+}
+

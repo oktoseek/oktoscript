@@ -1,0 +1,87 @@
+PROJECT "VisionClassifier"
+DESCRIPTION "Complete computer vision pipeline with image augmentation and ONNX export"
+VERSION "1.0"
+AUTHOR "OktoSeek"
+
+DATASET {
+    train: "dataset/images/train/"
+    validation: "dataset/images/val/"
+    test: "dataset/images/test/"
+    format: "image+caption"
+    type: "vision"
+    language: "en"
+    augmentation: ["flip", "rotate", "brightness", "contrast", "crop"]
+}
+
+MODEL {
+    base: "oktoseek/vision-base"
+    architecture: "vision-transformer"
+    parameters: 86M
+    context_window: 224
+    precision: "fp16"
+}
+
+TRAIN {
+    epochs: 50
+    batch_size: 32
+    learning_rate: 0.001
+    optimizer: "adam"
+    scheduler: "cosine"
+    loss: "cross_entropy"
+    device: "cuda"
+    gpu: true
+    mixed_precision: true
+    early_stopping: true
+    checkpoint_steps: 500
+    checkpoint_path: "./checkpoints/vision"
+    weight_decay: 0.0001
+    gradient_clip: 1.0
+    warmup_steps: 1000
+    save_strategy: "steps"
+}
+
+METRICS {
+    accuracy
+    precision
+    recall
+    f1
+    f1_macro
+    f1_micro
+    confusion_matrix
+}
+
+VALIDATE {
+    on_train: true
+    on_validation: true
+    frequency: 1
+    save_best_model: true
+    metric_to_monitor: "accuracy"
+}
+
+EXPORT {
+    format: ["onnx", "okm", "tflite"]
+    path: "export/"
+    quantization: "int8"
+    optimize_for: "speed"
+}
+
+DEPLOY {
+    target: "web"
+    endpoint: "https://api.example.com/vision"
+    requires_auth: true
+    max_concurrent_requests: 100
+}
+
+SECURITY {
+    encrypt_model: true
+    watermark: true
+}
+
+LOGGING {
+    save_logs: true
+    metrics_file: "runs/vision-classifier/metrics.json"
+    training_file: "runs/vision-classifier/training_logs.json"
+    log_level: "info"
+    log_every: 50
+}
+

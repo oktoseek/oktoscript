@@ -5,6 +5,8 @@
 
 <h1 align="center">OktoScript</h1>
 
+
+
 <p align="center">
   <strong>Domain-specific language for AI training, evaluation and deployment</strong>
 </p>
@@ -25,17 +27,33 @@
 ## Table of Contents
 
 1. [What is OktoScript?](#-what-is-oktoscript)
-2. [Official Folder Structure](#-official-folder-structure)
-3. [Basic Example](#-oktoscript--basic-example)
-4. [Supported Dataset Formats](#-supported-dataset-formats)
-5. [Supported Metrics](#-supported-metrics)
-6. [CLI Commands](#️-cli-commands)
-7. [Training Pipeline](#-training-pipeline)
-8. [OktoSeek Internal Formats](#-oktoseek-internal-formats)
-9. [Integration Targets](#️-integration-targets)
-10. [VS Code Extension](#-vs-code-extension-coming-soon)
-11. [License](#-license)
-12. [Contact](#-contact)
+2. [Quick Start](#-quick-start)
+3. [Official Folder Structure](#-official-folder-structure)
+4. [Basic Example](#-oktoscript--basic-example)
+5. [Supported Dataset Formats](#-supported-dataset-formats)
+6. [Supported Metrics](#-supported-metrics)
+7. [CLI Commands](#️-cli-commands)
+8. [Training Pipeline](#-training-pipeline)
+9. [OktoSeek Internal Formats](#-oktoseek-internal-formats)
+10. [Integration Targets](#️-integration-targets)
+11. [VS Code Extension](#-vs-code-extension-coming-soon)
+12. [Documentation](#-documentation)
+13. [License](#-license)
+14. [Contact](#-contact)
+
+---
+
+## 🚀 Quick Start
+
+**New to OktoScript?** Get started in 5 minutes:
+
+1. **Read the guide:** [`docs/GETTING_STARTED.md`](./docs/GETTING_STARTED.md)
+2. **Try an example:** [`examples/basic.okt`](./examples/basic.okt)
+3. **Validate:** `okto validate examples/basic.okt`
+4. **Train:** `okto run examples/basic.okt`
+
+📚 **Full documentation:** [`docs/grammar.md`](./docs/grammar.md)  
+🔍 **Validation rules:** [`VALIDATION_RULES.md`](./VALIDATION_RULES.md)
 
 ---
 
@@ -120,11 +138,20 @@ EXPORT {
 📘 **Full grammar specification available in** [`/docs/grammar.md`](./docs/grammar.md)
 
 📚 **More examples and use cases:** See [`/examples/`](./examples/) for complete examples including:
+
+**Basic Examples:**
 - [`basic.okt`](./examples/basic.okt) - Minimal example
 - [`chatbot.okt`](./examples/chatbot.okt) - Conversational AI
 - [`computer_vision.okt`](./examples/computer_vision.okt) - Image classification
 - [`recommender.okt`](./examples/recommender.okt) - Recommendation systems
-- [`pizzabot/`](./examples/pizzabot/) - Complete project example
+
+**Advanced Examples:**
+- [`finetuning-llm.okt`](./examples/finetuning-llm.okt) - Fine-tuning LLM with checkpoints and hooks
+- [`vision-pipeline.okt`](./examples/vision-pipeline.okt) - Complete vision pipeline with augmentation
+- [`qa-embeddings.okt`](./examples/qa-embeddings.okt) - QA system with embeddings
+
+**Complete Projects:**
+- [`pizzabot/`](./examples/pizzabot/) - Complete project example with full structure
 
 ---
 
@@ -320,6 +347,27 @@ See [`/examples/`](./examples/) for examples using different export formats.
 
 ---
 
+## 📚 Documentation
+
+Complete documentation for OktoScript:
+
+- 📖 **[Grammar Specification](./docs/grammar.md)** - Complete formal grammar with all constraints
+- 🚀 **[Getting Started Guide](./docs/GETTING_STARTED.md)** - Your first 5 minutes with OktoScript
+- ✅ **[Validation Rules](./VALIDATION_RULES.md)** - Complete validation reference
+- 💡 **[Examples](./examples/)** - Working examples from basic to advanced
+
+### Advanced Topics
+
+- 🔗 **[Model Inheritance](./docs/grammar.md#model-inheritance)** - Reuse model configurations
+- 🔌 **[Extension Points & Hooks](./docs/grammar.md#extension-points--hooks)** - Custom Python/JS integration
+- 🐛 **[Troubleshooting](./docs/grammar.md#troubleshooting)** - Common issues and solutions
+- ⚙️ **[Complex Examples](./examples/)** - Advanced use cases:
+  - [`finetuning-llm.okt`](./examples/finetuning-llm.okt) - Fine-tuning with checkpoints
+  - [`vision-pipeline.okt`](./examples/vision-pipeline.okt) - Production vision systems
+  - [`qa-embeddings.okt`](./examples/qa-embeddings.okt) - Semantic search and retrieval
+
+---
+
 ## 🧑‍🚀 Vision
 
 > *"Knowledge must be shared between people so that we can create solutions we could never imagine."*
@@ -362,5 +410,3 @@ If you have any questions, please raise an issue or contact us at **service@okto
 <p align="center">
   Made with ❤️ by the <strong>OktoSeek AI</strong> team
 </p>
-
-

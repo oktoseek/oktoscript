@@ -1,0 +1,97 @@
+PROJECT "FineTunedLLM"
+DESCRIPTION "Fine-tuning a small LLM with checkpoint resume and custom callbacks"
+VERSION "1.0"
+AUTHOR "OktoSeek"
+
+DATASET {
+    train: "dataset/instruction_train.jsonl"
+    validation: "dataset/instruction_val.jsonl"
+    test: "dataset/instruction_test.jsonl"
+    format: "instruction"
+    type: "generation"
+    language: "en"
+}
+
+MODEL {
+    base: "oktoseek/base-llm-7b"
+    architecture: "transformer"
+    parameters: 7B
+    context_window: 4096
+    precision: "fp16"
+}
+
+TRAIN {
+    epochs: 5
+    batch_size: 4
+    gradient_accumulation: 8
+    learning_rate: 0.0001
+    optimizer: "adamw"
+    scheduler: "cosine_with_restarts"
+    loss: "cross_entropy"
+    device: "cuda"
+    gpu: true
+    mixed_precision: true
+    early_stopping: true
+    checkpoint_steps: 100
+    checkpoint_path: "./checkpoints"
+    weight_decay: 0.01
+    gradient_clip: 1.0
+    warmup_steps: 100
+    save_strategy: "steps"
+}
+
+METRICS {
+    loss
+    perplexity
+    bleu
+    rouge_l
+    token_efficiency
+    response_coherence
+}
+
+VALIDATE {
+    on_train: false
+    on_validation: true
+    frequency: 1
+    save_best_model: true
+    metric_to_monitor: "loss"
+}
+
+INFERENCE {
+    max_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 50
+    repetition_penalty: 1.1
+    stop_sequences: ["\n\nHuman:", "\n\nAssistant:"]
+}
+
+EXPORT {
+    format: ["gguf", "onnx", "okm", "safetensors"]
+    path: "export/"
+    quantization: "int8"
+    optimize_for: "speed"
+}
+
+DEPLOY {
+    target: "api"
+    endpoint: "http://localhost:9000/llm"
+    requires_auth: true
+    port: 9000
+    max_concurrent_requests: 50
+}
+
+HOOKS {
+    before_train: "scripts/preprocess_data.py"
+    after_epoch: "scripts/custom_early_stop.py"
+    on_checkpoint: "scripts/backup_checkpoint.sh"
+}
+
+LOGGING {
+    save_logs: true
+    metrics_file: "runs/finetuned-llm/metrics.json"
+    training_file: "runs/finetuned-llm/training_logs.json"
+    log_level: "info"
+    log_every: 10
+}
+
