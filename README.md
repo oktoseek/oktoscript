@@ -1,6 +1,9 @@
+<p align="center">
+  <img src="./assets/okto_logo.png" alt="OktoScript Banner" width="50%" />
+</p>
 
 
-<h1 align="center">🐙 OktoScript</h1>
+<h1 align="center">OktoScript</h1>
 
 <p align="center">
   <strong>Domain-specific language for AI training, evaluation and deployment</strong>
@@ -359,4 +362,5 @@ If you have any questions, please raise an issue or contact us at **service@okto
 <p align="center">
   Made with ❤️ by the <strong>OktoSeek AI</strong> team
 </p>
+
 
