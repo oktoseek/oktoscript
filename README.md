@@ -12,7 +12,12 @@
 
 
 <p align="center">
-  <strong>Domain-specific language for AI training, evaluation and deployment</strong>
+  <strong>A decision-driven language for training, evaluating and governing AI models.</strong>
+</p>
+
+<p align="center">
+  A domain-specific language (DSL) designed for autonomous AI pipelines with<br>
+  built-in decision, control, monitoring and governance capabilities.
 </p>
 
 <p align="center">
@@ -64,24 +69,57 @@
 
 ## 🚀 What is OktoScript?
 
-**OktoScript** is a domain-specific programming language created by **OktoSeek AI** to build, train, evaluate and export AI models in a **structured, readable and repeatable way**.
+**OktoScript** is a decision-driven language created by **OktoSeek AI** to design, train, evaluate, control and govern AI models end-to-end.
 
-Designed to be:
+It goes far beyond a simple training script. OktoScript introduces native intelligence, autonomous decision-making and behavioral control into the AI development lifecycle.
 
-- ✅ **Human-readable** - Clear syntax that anyone can understand
-- ✅ **Strongly structured** - Type-safe and validated configurations
-- ✅ **Dataset-centered** - Built around your data from day one
-- ✅ **Training-oriented** - Optimized for ML workflows
-- ✅ **Compatible** - Works with modern AI frameworks
-- ✅ **Expandable** - Extensible through the OktoEngine
+It allows you to define:
+
+- **How a model is trained**
+- **How it should behave**
+- **How it should react to problems**
+- **How and when it should stop, adapt or improve itself**
+
+All using clear, readable and structured commands, built specifically for AI engineering.
+
+### Designed to be:
+
+- ✅ **Human-readable** – Intuitive syntax that engineers and non-engineers can understand
+- ✅ **Decision-driven** – Built-in CONTROL logic (IF, WHEN, SET, STOP, LOG, SAVE…)
+- ✅ **Strongly structured** – Validated, deterministic and reproducible pipelines
+- ✅ **Dataset-centered** – The data is the starting point of all intelligence
+- ✅ **Training-aware** – Created specifically for AI training and optimization
+- ✅ **Behavior-aware** – Control personality, language, restrictions and style
+- ✅ **Self-monitoring** – Tracks metrics, detects anomalies and adapts automatically
+- ✅ **Safe by design** – Integrated GUARD and SECURITY layers
+- ✅ **Expandable** – Extensible through OktoEngine and custom modules
 
 OktoScript is the official language of the OktoSeek ecosystem and is used by:
 
-- 🎯 **OktoSeek IDE** - Visual development environment
-- ⚙️ **OktoEngine** - Core execution engine
-- 🔌 **VS Code Extension** - Editor integration
-- 🔄 **Model pipelines** - Automated workflows
-- 📱 **Flutter / API plugins** - Cross-platform deployment
+- 🎯 **OktoSeek IDE** – Visual AI development and experimentation
+- ⚙️ **OktoEngine** – Core execution and decision engine
+- 🔌 **VS Code Extension** – Code editing + validation
+- 🔄 **Autonomous pipelines** – Training, control, evaluation and inference
+- 🤖 **AI agents** – Controlled, monitored intelligent systems
+- 📱 **Flutter / API deployments** – Cross-platform model integration
+
+### Why OktoScript is different
+
+**Traditional AI development is reactive.**  
+You manually monitor metrics, fix problems and restart training.
+
+**OktoScript is proactive.**
+
+It allows the model to:
+
+- **Detect instability**
+- **Reduce or increase learning rate automatically**
+- **Adapt batch size based on GPU memory**
+- **Stop when performance drops**
+- **Save only the best checkpoints**
+- **Apply rules when patterns are detected**
+
+In other words, **OktoScript doesn't just train models — it governs intelligence.**
 
 ---
 
