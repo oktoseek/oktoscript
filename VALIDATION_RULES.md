@@ -180,12 +180,83 @@ Complete reference for validation rules and constraints in OktoScript.
 - `lora_alpha` typically: 16, 32, 64
 - Cannot use both `TRAIN` and `FT_LORA` in same file
 
+### MODEL Block — ADAPTER Sub-block
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| type | enum | ✅ Yes | Must be: lora, qlora, adapter, peft |
+| path | path | ✅ Yes | Must exist and be valid adapter path |
+| rank | number | ❌ No | > 0, typically 4, 8, 16, 32, 64 |
+| alpha | number | ❌ No | > 0, typically 16, 32, 64 |
+
+**Validation Rules:**
+- If ADAPTER is defined, it is applied after base model is loaded
+- Adapter path must exist and be readable
+- ADAPTER is optional within MODEL block
+
+### INFERENCE Block (Expanded)
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| mode | enum | ✅ Yes | Must be: chat, intent, translate, classify, custom |
+| format | string | ❌ No | Template string with {input}, {context}, {labels} |
+| exit_command | string | ❌ No | Command to exit chat mode |
+| params | object | ❌ No | Inference parameters object |
+| CONTROL | block | ❌ No | Nested CONTROL block for inference |
+
+**INFERENCE params:**
+- `max_length`: > 0 and <= 8192
+- `temperature`: >= 0.0 and <= 2.0
+- `top_p`: > 0.0 and <= 1.0
+- `beams`: >= 1
+- `do_sample`: boolean (true/false)
+- `top_k`: >= 0 (0 = disabled)
+- `repetition_penalty`: > 0.0 and <= 2.0
+
+**Validation Rules:**
+- IF INFERENCE exists THEN MODEL is required
+- Format string must contain at least {input} for most modes
+- CONTROL within INFERENCE can only use: RETRY, REGENERATE, REPLACE
+
+### CONTROL Block
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| IF | condition | ❌ No | Conditional logic |
+| WHEN | condition | ❌ No | Event-based conditional |
+| EVERY | number + steps | ❌ No | Periodic actions |
+| SET | assignment | ❌ No | Set parameter value |
+| STOP | action | ❌ No | Stop operation |
+| LOG | metric/string | ❌ No | Log value or message |
+| SAVE | target | ❌ No | Save model/checkpoint |
+| RETRY | action | ❌ No | Retry inference |
+| REGENERATE | action | ❌ No | Regenerate output |
+| STOP_TRAINING | action | ❌ No | Stop training |
+| DECREASE | parameter + BY + value | ❌ No | Decrease parameter |
+| INCREASE | parameter + BY + value | ❌ No | Increase parameter |
+| on_step_end | block | ❌ No | Hook executed at step end |
+| on_epoch_end | block | ❌ No | Hook executed at epoch end |
+| on_memory_low | block | ❌ No | Hook executed when memory low |
+| on_nan | block | ❌ No | Hook executed on NaN |
+| on_plateau | block | ❌ No | Hook executed on loss plateau |
+| validate_every | number | ❌ No | Validate every N steps |
+
+**Validation Rules:**
+- IF CONTROL used THEN must contain at least one of: IF | WHEN | EVERY | on_step_end | on_epoch_end
+- Boolean values accepted = true | false
+- Allowed CONTROL keywords = IF | WHEN | EVERY | SET | STOP | LOG | SAVE | RETRY | REGENERATE | STOP_TRAINING | DECREASE | INCREASE
+- validate_every must receive integer
+- DECREASE LR requires numeric value
+- Conditions must use valid comparison operators: >, <, >=, <=, ==, !=
+
 ### MONITOR Block (v1.1+)
 
 | Field | Type | Required | Constraints |
 |-------|------|----------|-------------|
+| metrics | array | ❌ No | Array of metric names |
+| notify_if | object | ❌ No | Conditions for notifications |
+| log_to | path | ❌ No | Path to log file |
 | level | enum | ❌ No | Must be: basic, full |
-| log_metrics | array | ❌ No | Array of metric names |
 | log_system | array | ❌ No | Array of system metric names |
 | log_speed | array | ❌ No | Array of speed metric names |
 | refresh_interval | string | ❌ No | Format: number + "s" or "ms", >= 1s |
@@ -193,13 +264,69 @@ Complete reference for validation rules and constraints in OktoScript.
 | dashboard | boolean | ❌ No | true or false |
 
 **System Metrics:**
-- `gpu_memory_used`, `gpu_memory_free`: Only if CUDA available
+- `gpu_memory_used`, `gpu_memory_free`, `gpu_usage`, `gpu_temperature`: Only if CUDA available
 - `temperature`: Only if hardware supports it
 
 **Validation Rules:**
 - GPU metrics only validated if CUDA is available
 - `refresh_interval` must be >= 1s
 - `MONITOR` extends `METRICS` and `LOGGING`, does not replace them
+- `notify_if` conditions must use valid comparison operators
+- Supported metrics: loss, accuracy, val_loss, val_accuracy, gpu_usage, ram_usage, throughput, latency, confidence, hallucination_score, and all custom metrics
+
+### GUARD Block
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| prevent | object | ❌ No | Array of prevention types |
+| on_violation | object | ❌ No | Action on violation |
+
+**Prevention types:**
+- `hallucination`, `toxicity`, `bias`, `data_leak`, `unsafe_code`
+
+**Validation Rules:**
+- GUARD.on_violation can only be STOP or ALERT or REPLACE or LOG
+- Prevention types must be valid enum values
+
+### BEHAVIOR Block
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| personality | enum | ❌ No | Must be: professional, friendly, assistant, casual, formal, creative |
+| verbosity | enum | ❌ No | Must be: low, medium, high |
+| language | enum | ❌ No | Must be: en, pt-BR, es, fr, de, it, ja, zh, multilingual |
+| avoid | array | ❌ No | Array of strings to avoid |
+| fallback | string | ❌ No | Fallback message |
+
+**Validation Rules:**
+- All enum values must match allowed values
+- fallback must be a non-empty string if provided
+
+### EXPLORER Block
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| try | object | ✅ Yes | Parameter combinations to test |
+| max_tests | number | ❌ No | Must be <= 50 |
+| pick_best_by | string | ❌ No | Must be valid metric name |
+
+**Validation Rules:**
+- EXPLORER.max_tests must be <= 50
+- pick_best_by must be a valid metric (e.g., "val_loss", "accuracy")
+- try object must contain at least one parameter array
+- Parameter arrays must contain valid values for their type
+
+### STABILITY Block
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| stop_if_nan | boolean | ❌ No | true or false |
+| stop_if_diverges | boolean | ❌ No | true or false |
+| min_improvement | decimal | ❌ No | Must be float >= 0 |
+
+**Validation Rules:**
+- STABILITY.min_improvement must be float
+- Boolean values must be true or false (lowercase)
 
 ### DEPLOY Block
 
@@ -305,6 +432,13 @@ Complete reference for validation rules and constraints in OktoScript.
 | V012 | FT_LORA and TRAIN conflict | Cannot use both TRAIN and FT_LORA in same file |
 | V013 | Version declaration invalid | Version must be "1.0" or "1.1" |
 | V014 | GPU metrics unavailable | GPU metrics requested but CUDA not available |
+| V015 | CONTROL block empty | CONTROL must contain at least one directive |
+| V016 | Invalid CONTROL keyword | Use only allowed CONTROL keywords |
+| V017 | EXPLORER max_tests too high | max_tests must be <= 50 |
+| V018 | Invalid boolean value | Boolean must be true or false (lowercase) |
+| V019 | INFERENCE without MODEL | INFERENCE block requires MODEL block |
+| V020 | Invalid adapter type | ADAPTER type must be: lora, qlora, adapter, peft |
+| V021 | GUARD violation action invalid | on_violation must be: STOP, ALERT, REPLACE, or LOG |
 
 ---
 

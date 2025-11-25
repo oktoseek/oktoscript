@@ -1,0 +1,50 @@
+# okto_version: "1.2"
+PROJECT "ExplorerAutoMLExample"
+DESCRIPTION "Demonstrates EXPLORER block for hyperparameter search"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  validation: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "explorer-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+EXPLORER {
+  try {
+    lr: [0.001, 0.0005, 0.0001, 0.00005]
+    batch_size: [8, 16, 32]
+    optimizer: ["adamw", "adam", "sgd"]
+    scheduler: ["cosine", "linear", "constant"]
+  }
+  
+  max_tests: 12
+  pick_best_by: "val_loss"
+}
+
+TRAIN {
+  epochs: 5
+  device: "cuda"
+}
+
+MONITOR {
+  metrics: ["loss", "val_loss", "accuracy"]
+  log_to: "logs/explorer.log"
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

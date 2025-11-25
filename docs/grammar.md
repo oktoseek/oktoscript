@@ -1,8 +1,8 @@
-# OktoScript Grammar Specification v1.1
+# OktoScript Grammar Specification v1.2
 
 Complete formal grammar for the OktoScript language, developed by **OktoSeek AI**.
 
-> **Version Compatibility:** This specification covers OktoScript v1.1, which is 100% backward compatible with v1.0. Files without version declaration default to v1.0.
+> **Version Compatibility:** This specification covers OktoScript v1.2, which is 100% backward compatible with v1.0 and v1.1. Files without version declaration default to v1.0.
 
 ---
 
@@ -17,15 +17,23 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
 7. [METRICS Block](#metrics-block)
 8. [VALIDATION Block](#validation-block)
 9. [INFERENCE Block](#inference-block)
-10. [EXPORT Block](#export-block)
-11. [DEPLOY Block](#deploy-block)
-12. [SECURITY Block](#security-block)
-13. [LOGGING Block](#logging-block)
-14. [Model Inheritance](#model-inheritance)
-15. [Extension Points & Hooks](#extension-points--hooks)
-16. [Validation Rules](#validation-rules)
-17. [Troubleshooting](#troubleshooting)
-18. [Terminal / Basic Types](#terminal--basic-types)
+10. [CONTROL Block — Decision Engine](#control-block--decision-engine)
+11. [MONITOR Block — Full Metrics Support](#monitor-block--full-metrics-support)
+12. [GUARD Block — Safety / Ethics / Protection](#guard-block--safety--ethics--protection)
+13. [BEHAVIOR Block — Model Personality](#behavior-block--model-personality)
+14. [EXPLORER Block — Parameter Search](#explorer-block--parameter-search)
+15. [STABILITY Block — Training Safety](#stability-block--training-safety)
+16. [Boolean Support](#boolean-support)
+17. [EXPORT Block](#export-block)
+18. [DEPLOY Block](#deploy-block)
+19. [SECURITY Block](#security-block)
+20. [LOGGING Block](#logging-block)
+21. [Model Inheritance](#model-inheritance)
+22. [Extension Points & Hooks](#extension-points--hooks)
+23. [Validation Rules](#validation-rules)
+24. [Troubleshooting](#troubleshooting)
+25. [Terminal / Basic Types](#terminal--basic-types)
+26. [Full Script Example](#full-script-example)
 
 ---
 
@@ -51,6 +59,11 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
   [<security_block>]
   [<logging_block>]
   [<monitor_block>]
+  [<control_block>]
+  [<guard_block>]
+  [<behavior_block>]
+  [<explorer_block>]
+  [<stability_block>]
   [<hooks_block>]
 ```
 
@@ -70,7 +83,7 @@ Complete formal grammar for the OktoScript language, developed by **OktoSeek AI*
 
 **Example:**
 ```okt
-# okto_version: "1.1"
+# okto_version: "1.2"
 PROJECT "MyModel"
 ...
 ```
@@ -79,7 +92,7 @@ PROJECT "MyModel"
 - Optional at the top of the file
 - If missing, defaults to v1.0
 - Must be the first line (comments allowed before)
-- Format: `# okto_version: "1.1"` or `# okto_version: "1.0"`
+- Format: `# okto_version: "1.2"`, `# okto_version: "1.1"`, or `# okto_version: "1.0"`
 
 ---
 
@@ -435,13 +448,19 @@ DATASET {
 ```ebnf
 <model_block> ::= 
   "MODEL" "{"
+      [<model_name>]
       <model_base>
       [<model_architecture>]
       [<model_parameters>]
       [<model_context_window>]
       [<model_precision>]
       [<model_inherit>]
+      [<model_device>]
+      [<adapter_block>]
   "}"
+
+<model_name> ::=
+  "name" ":" <string>
 
 <model_base> ::=
   "base" ":" <string>
@@ -460,6 +479,29 @@ DATASET {
 
 <model_inherit> ::=
   "inherit" ":" <string>
+
+<model_device> ::=
+  "device" ":" ("cuda" | "cpu" | "mps" | "auto")
+
+<adapter_block> ::=
+  "ADAPTER" "{"
+      <adapter_type>
+      <adapter_path>
+      [<adapter_rank>]
+      [<adapter_alpha>]
+  "}"
+
+<adapter_type> ::=
+  "type" ":" ("lora" | "qlora" | "adapter" | "peft")
+
+<adapter_path> ::=
+  "path" ":" <path>
+
+<adapter_rank> ::=
+  "rank" ":" <number>
+
+<adapter_alpha> ::=
+  "alpha" ":" <number>
 ```
 
 **Model Inheritance:**
@@ -482,11 +524,29 @@ DATASET {
 **Example:**
 ```okt
 MODEL {
+    name: "oktogpt"
     base: "oktoseek/pizza-small"
     architecture: "transformer"
     parameters: 120M
     context_window: 2048
     precision: "fp16"
+    device: "cuda"
+}
+```
+
+**Example with ADAPTER (LoRA/PEFT support):**
+```okt
+MODEL {
+    name: "oktogpt"
+    base: "google/flan-t5-base"
+    device: "cuda"
+    
+    ADAPTER {
+        type: "lora"
+        path: "D:/model_trainee/phase1_sharegpt/ep2"
+        rank: 16
+        alpha: 32
+    }
 }
 ```
 
@@ -506,6 +566,15 @@ MODEL {
     parameters: 250M
 }
 ```
+
+**ADAPTER Block:**
+The `ADAPTER` sub-block enables parameter-efficient fine-tuning methods such as LoRA, QLoRA, PEFT, or other adapters. If an `ADAPTER` is defined, it is applied after the base model is loaded by the engine.
+
+**Adapter constraints:**
+- `type`: Must be one of `"lora"`, `"qlora"`, `"adapter"`, or `"peft"`
+- `path`: Must point to a valid adapter directory or file
+- `rank`: Optional, typically 4, 8, 16, 32, or 64 (for LoRA)
+- `alpha`: Optional, typically 16, 32, or 64 (for LoRA scaling)
 
 ---
 
@@ -834,36 +903,422 @@ VALIDATE {
 
 ## INFERENCE Block
 
+The `INFERENCE` block defines how the model behaves during inference, prediction, or interactive chat.
+
 ```ebnf
 <inference_block> ::= 
   "INFERENCE" "{"
-      "max_tokens" ":" <number>
-      "temperature" ":" <decimal>
-      "top_p" ":" <decimal>
-      "top_k" ":" <number>
-      [ "repetition_penalty" ":" <decimal> ]
-      [ "stop_sequences" ":" "[" <string_list> "]" ]
+      <inference_mode>
+      [<inference_format>]
+      [<inference_exit_command>]
+      [<inference_params>]
+      [<inference_control>]
+  "}"
+
+<inference_mode> ::=
+  "mode" ":" ("chat" | "intent" | "translate" | "classify" | "custom")
+
+<inference_format> ::=
+  "format" ":" <string>
+
+<inference_exit_command> ::=
+  "exit_command" ":" <string>
+
+<inference_params> ::=
+  "params" "{"
+      [<inference_max_length>]
+      [<inference_temperature>]
+      [<inference_top_p>]
+      [<inference_beams>]
+      [<inference_do_sample>]
+      [<inference_top_k>]
+      [<inference_repetition_penalty>]
+  "}"
+
+<inference_max_length> ::=
+  "max_length" ":" <number>
+
+<inference_temperature> ::=
+  "temperature" ":" <decimal>
+
+<inference_top_p> ::=
+  "top_p" ":" <decimal>
+
+<inference_beams> ::=
+  "beams" ":" <number>
+
+<inference_do_sample> ::=
+  "do_sample" ":" <boolean>
+
+<inference_top_k> ::=
+  "top_k" ":" <number>
+
+<inference_repetition_penalty> ::=
+  "repetition_penalty" ":" <decimal>
+
+<inference_control> ::=
+  "CONTROL" "{"
+      { <control_if> | <control_when> | <control_every> | <control_set> | <control_stop> | <control_log> | <control_save> | <control_retry> | <control_regenerate> }
   "}"
 ```
 
+**Supported format patterns:**
+
+The `format` field supports template strings with variables:
+
+| Use case | Example |
+|----------|---------|
+| Chat | `"User: {input}\nAssistant:"` |
+| Free | `"{input}"` |
+| Translation | `"translate English to Portuguese: {input}"` |
+| Intent | `"{input}"` |
+| QA/RAG | `"Context: {context}\nQuestion: {input}\nAnswer:"` |
+| LLaMA style | `"<|user|>\n{input}\n<|assistant|>\n"` |
+
+**Supported variables:**
+- `{input}` → user input
+- `{context}` → optional context (for RAG/QA)
+- `{labels}` → class list for classification
+
 **Constraints:**
-- `max_tokens`: Must be > 0 and <= 8192
+- `mode`: Defines the inference behavior type
+- `format`: Template string with variable placeholders
+- `max_length`: Must be > 0 and <= 8192
 - `temperature`: Must be >= 0.0 and <= 2.0
 - `top_p`: Must be > 0.0 and <= 1.0
 - `top_k`: Must be >= 0 (0 = disabled)
+- `beams`: Must be >= 1 (for beam search)
+- `do_sample`: Boolean (true/false)
 - `repetition_penalty`: Must be > 0.0 and <= 2.0
 
-**Example:**
+**Example (Chat mode):**
 ```okt
 INFERENCE {
-    max_tokens: 200
-    temperature: 0.7
-    top_p: 0.9
-    top_k: 40
-    repetition_penalty: 1.1
-    stop_sequences: ["\n\n", "Human:", "Assistant:"]
+    mode: "chat"
+    format: "User: {input}\nAssistant:"
+    exit_command: "/exit"
+    
+    params {
+        max_length: 120
+        temperature: 0.7
+        top_p: 0.9
+        beams: 2
+        do_sample: true
+    }
+    
+    CONTROL {
+        IF confidence < 0.3 { RETRY }
+        IF repetition > 3 { REGENERATE }
+        IF hallucination_score > 0.5 { REPLACE WITH "Desculpe, não tenho certeza." }
+    }
 }
 ```
+
+**Example (Translation mode):**
+```okt
+INFERENCE {
+    mode: "translate"
+    format: "translate English to Portuguese: {input}"
+    
+    params {
+        max_length: 200
+        temperature: 0.5
+        top_p: 0.95
+    }
+}
+```
+
+**Example (Classification mode):**
+```okt
+INFERENCE {
+    mode: "classify"
+    format: "{input}"
+    
+    params {
+        temperature: 0.1
+        top_k: 5
+    }
+}
+```
+
+---
+
+## CONTROL Block — Decision Engine
+
+The `CONTROL` block enables logical, conditional, event-based, and metric-based decisions during training and inference. It introduces a cognitive-level abstraction that allows AI models to take decisions, self-adjust, and self-regulate in a declarative and clean way.
+
+```ebnf
+<control_block> ::=
+  "CONTROL" "{"
+      { <control_event> | <control_if> | <control_when> | <control_every> | <control_set> | <control_stop> | <control_log> | <control_save> | <control_retry> | <control_regenerate> | <control_stop_training> | <control_decrease> | <control_increase> }
+  "}"
+
+<control_event> ::=
+  <on_step_end> | <on_epoch_end> | <on_memory_low> | <on_nan> | <on_plateau> | <validate_every>
+
+<on_step_end> ::=
+  "on_step_end" "{"
+      { <control_log> | <control_save> | <control_set> | <control_if> | <control_when> | <control_every> }
+  "}"
+
+<on_epoch_end> ::=
+  "on_epoch_end" "{"
+      { <control_log> | <control_save> | <control_set> | <control_stop_training> | <control_if> | <control_when> | <control_every> }
+  "}"
+
+<on_memory_low> ::=
+  "on_memory_low" "{"
+      { <control_set> | <control_stop> | <control_if> | <control_when> }
+  "}"
+
+<on_nan> ::=
+  "on_nan" "{"
+      { <control_stop_training> | <control_log> | <control_if> }
+  "}"
+
+<on_plateau> ::=
+  "on_plateau" "{"
+      { <control_decrease> | <control_increase> | <control_set> | <control_if> | <control_when> }
+  "}"
+
+<validate_every> ::=
+  "validate_every" ":" <number>
+
+<control_if> ::=
+  "IF" <condition> "{"
+      { <control_set> | <control_stop> | <control_log> | <control_save> | <control_stop_training> | <control_decrease> | <control_increase> | <control_retry> | <control_regenerate> | <control_if> | <control_when> | <control_every> }
+  "}"
+
+<control_when> ::=
+  "WHEN" <condition> "{"
+      { <control_set> | <control_stop> | <control_log> | <control_if> | <control_when> }
+  "}"
+
+<control_every> ::=
+  "EVERY" <number> ("steps" | "epochs") "{"
+      { <control_save> | <control_log> | <control_set> | <control_if> | <control_when> }
+  "}"
+
+<control_set> ::=
+  "SET" <identifier> "=" <value>
+
+<control_stop> ::=
+  "STOP"
+
+<control_log> ::=
+  "LOG" ( <metric_name> | <string> )
+
+<control_save> ::=
+  "SAVE" ( "model" | "checkpoint" | <string> )
+
+<control_retry> ::=
+  "RETRY"
+
+<control_regenerate> ::=
+  "REGENERATE"
+
+<control_stop_training> ::=
+  "STOP_TRAINING"
+
+<control_decrease> ::=
+  "DECREASE" <identifier> "BY" <number>
+
+<control_increase> ::=
+  "INCREASE" <identifier> "BY" <number>
+
+<condition> ::=
+  <metric_name> <comparison_operator> <value>
+
+<comparison_operator> ::=
+  ">" | "<" | ">=" | "<=" | "==" | "!="
+
+<value> ::=
+  <number> | <decimal> | <string> | <boolean> | <identifier>
+
+<metric_name> ::=
+  "loss" | "val_loss" | "accuracy" | "val_accuracy" | "gpu_memory" | "ram_usage" | "confidence" | "hallucination_score" | <custom_metric>
+
+<identifier> ::=
+  "LR" | "learning_rate" | "batch_size" | "temperature" | <custom_identifier>
+```
+
+**Supported events/hooks:**
+
+| Event | Description |
+|-------|-------------|
+| `on_step_end` | Executed at the end of each training step |
+| `on_epoch_end` | Executed at the end of each epoch |
+| `validate_every` | Execute validation every X steps |
+| `on_memory_low` | Triggered when GPU/RAM is low |
+| `on_nan` | Triggered when NaN values are detected |
+| `on_plateau` | Triggered when loss is stagnant (plateau) |
+
+**Supported directives:**
+
+- `IF` - Conditional logic based on metrics
+- `WHEN` - Event-based conditional logic
+- `EVERY` - Periodic actions (every N steps)
+- `SET` - Set parameter values dynamically
+- `STOP` - Stop current operation
+- `LOG` - Log metrics or messages
+- `SAVE` - Save model or checkpoint
+- `RETRY` - Retry inference generation
+- `REGENERATE` - Regenerate output
+- `STOP_TRAINING` - Stop training process
+- `DECREASE` - Decrease parameter value
+- `INCREASE` - Increase parameter value
+
+**Nested Blocks Support:**
+
+The CONTROL block in OktoScript supports nested logic, event-driven triggers, and conditional reasoning. You can nest IF / WHEN / EVERY statements inside lifecycle hooks like `on_step_end` and `on_epoch_end`, allowing dynamic, real-time decision making during training or inference.
+
+**Example (Basic):**
+```okt
+CONTROL {
+    on_step_end {
+        LOG loss
+    }
+    
+    on_epoch_end {
+        SAVE model
+        LOG "Epoch completed"
+    }
+    
+    validate_every: 200
+    
+    IF loss > 2.0 {
+        SET LR = 0.0001
+        LOG "High loss detected"
+    }
+    
+    IF val_loss > 2.5 {
+        STOP_TRAINING
+    }
+    
+    WHEN gpu_memory < 16GB {
+        SET batch_size = 4
+    }
+    
+    EVERY 500 steps {
+        SAVE checkpoint
+    }
+    
+    IF accuracy < 0.4 {
+        DECREASE LR BY 0.5
+    }
+}
+```
+
+**Example (Nested Blocks in Events):**
+```okt
+CONTROL {
+    on_epoch_end {
+        IF loss > 2.0 {
+            SET LR = 0.0001
+            LOG "High loss detected"
+        }
+        
+        IF val_loss > 2.5 {
+            STOP_TRAINING
+        }
+        
+        IF accuracy > 0.9 {
+            SAVE "best_model"
+            LOG "High accuracy reached"
+        }
+    }
+}
+```
+
+**Example (Advanced Nested Logic):**
+```okt
+CONTROL {
+    on_epoch_end {
+        EVERY 2 epochs {
+            SAVE "checkpoint_epoch_{epoch}"
+        }
+        
+        IF loss > 2.0 {
+            SET LR = 0.00005
+            LOG "Loss still high after epoch"
+            
+            WHEN gpu_usage > 90% {
+                SET batch_size = 2
+                LOG "Reducing batch size due to GPU pressure"
+            }
+            
+            IF val_loss > 3.0 {
+                STOP_TRAINING
+            }
+        }
+    }
+}
+```
+
+**Example (Context-Based Control):**
+```okt
+CONTROL {
+    IF epoch == 1 {
+        LOG "Warmup stage"
+    }
+    
+    IF epoch > 5 AND accuracy < 0.6 {
+        SET LR = 0.00001
+        LOG "Model is stagnated"
+    }
+    
+    IF epoch > 10 AND loss > 1.8 {
+        STOP_TRAINING
+    }
+}
+```
+
+**Example (Inference CONTROL):**
+```okt
+INFERENCE {
+    mode: "chat"
+    format: "User: {input}\nAssistant:"
+    
+    CONTROL {
+        IF confidence < 0.3 { RETRY }
+        IF repetition > 3 { REGENERATE }
+        IF toxic == true { REPLACE WITH "Not allowed" }
+    }
+}
+```
+
+**Example (Intent Classification CONTROL):**
+```okt
+INFERENCE {
+    mode: "intent-classification"
+    labels: ["greeting", "order", "complaint", "bye"]
+}
+
+CONTROL {
+    IF label == "complaint" {
+        RETURN "I'm sorry to hear that. How can I help?"
+    }
+    
+    IF confidence < 0.4 {
+        RETURN "Could you please repeat?"
+    }
+}
+```
+
+**Note:** OktoScript enables true declarative AI governance. CONTROL blocks can contain nested conditions and nested event triggers, making it a unique declarative decision-making language in the market.
+
+**Philosophy:**
+
+OktoScript keeps the surface clean and simple, while the engine behind it performs complex cognitive decision-making.
+
+- **CONTROL** defines logic
+- **MONITOR** defines awareness
+- **GUARD** defines safety
+- **BEHAVIOR** defines personality
+- **EXPLORER** defines optimization
+- **STABILITY** defines reliability
+
+Simple to read. Powerful to execute.
 
 ---
 
@@ -907,31 +1362,60 @@ EXPORT {
 
 ## DEPLOY Block
 
+The `DEPLOY` block defines deployment configuration for the model. The engine will create the server, generate routes, export in the required format, and configure limits and authentication.
+
 ```ebnf
-<deploy_block> ::= 
+<deploy_block> ::=
   "DEPLOY" "{"
       "target" ":" ("local" | "cloud" | "edge" | "api" | "android" | "ios" | "web" | "desktop")
       [ "endpoint" ":" <string> ]
+      [ "host" ":" <string> ]
       [ "requires_auth" ":" ("true" | "false") ]
       [ "port" ":" <number> ]
       [ "max_concurrent_requests" ":" <number> ]
+      [ "protocol" ":" ("http" | "https" | "grpc" | "ws") ]
+      [ "format" ":" ("onnx" | "tflite" | "gguf" | "pt" | "okm") ]
   "}"
 ```
 
 **Target-specific requirements:**
-- `api`: Requires `endpoint` and `port`
-- `android`, `ios`: Requires `.okm` or `.tflite` format in EXPORT
+- `api`: Requires `endpoint`, `host`, and `port`
+- `android`, `ios`: Requires `.okm` or `.tflite` format
 - `web`: Requires ONNX format
 - `edge`: Requires quantized model (int8 or int4)
 
-**Example:**
+**Protocol options:**
+- `http` - HTTP REST API
+- `https` - HTTPS REST API
+- `grpc` - gRPC protocol
+- `ws` - WebSocket protocol
+
+**Format options:**
+- `onnx` - ONNX format (production-ready)
+- `tflite` - TensorFlow Lite (mobile)
+- `gguf` - GGUF format (local inference)
+- `pt` - PyTorch format
+- `okm` - OktoModel format (OktoSeek optimized)
+
+**Example (API Deployment):**
 ```okt
 DEPLOY {
     target: "api"
-    endpoint: "http://localhost:9000/pizzabot"
+    host: "0.0.0.0"
+    endpoint: "/pizzabot"
     requires_auth: true
     port: 9000
     max_concurrent_requests: 100
+    protocol: "http"
+    format: "onnx"
+}
+```
+
+**Example (Mobile Deployment):**
+```okt
+DEPLOY {
+    target: "android"
+    format: "tflite"
 }
 ```
 
@@ -939,35 +1423,115 @@ DEPLOY {
 
 ## SECURITY Block
 
+The `SECURITY` block defines security measures for input validation, output validation, rate limiting, and encryption.
+
 ```ebnf
-<security_block> ::= 
+<security_block> ::=
   "SECURITY" "{"
-      [ "encrypt_model" ":" ("true" | "false") ]
-      [ "watermark" ":" ("true" | "false") ]
-      [ "access_token" ":" <string> ]
+      [ <input_validation> ]
+      [ <output_validation> ]
+      [ <rate_limit> ]
+      [ <encryption> ]
+  "}"
+
+<input_validation> ::=
+  "input_validation" "{"
+      [ "max_length" ":" <number> ]
+      [ "disallow_patterns" ":" "[" <string_list> "]" ]
+  "}"
+
+<output_validation> ::=
+  "output_validation" "{"
+      [ "prevent_data_leak" ":" ("true" | "false") ]
+      [ "mask_personal_info" ":" ("true" | "false") ]
+  "}"
+
+<rate_limit> ::=
+  "rate_limit" "{"
+      [ "max_requests_per_minute" ":" <number> ]
+  "}"
+
+<encryption> ::=
+  "encryption" "{"
+      [ "algorithm" ":" ("AES-256" | "SHA-256" | "RSA") ]
   "}"
 ```
+
+**Input validation:**
+- `max_length` - Maximum input length in characters
+- `disallow_patterns` - List of patterns to block (e.g., SQL injection, XSS)
+
+**Output validation:**
+- `prevent_data_leak` - Prevent training data from appearing in outputs
+- `mask_personal_info` - Mask personal information in outputs
+
+**Rate limiting:**
+- `max_requests_per_minute` - Maximum requests per minute per client
+
+**Encryption:**
+- `AES-256` - AES-256 encryption
+- `SHA-256` - SHA-256 hashing
+- `RSA` - RSA encryption
 
 **Example:**
 ```okt
 SECURITY {
-    encrypt_model: true
-    watermark: true
-    access_token: "your-secret-token"
+    input_validation {
+        max_length: 500
+        disallow_patterns: [
+            "<script>",
+            "DROP TABLE",
+            "rm -rf",
+            "sudo",
+            "passwd"
+        ]
+    }
+    
+    output_validation {
+        prevent_data_leak: true
+        mask_personal_info: true
+    }
+    
+    rate_limit {
+        max_requests_per_minute: 60
+    }
+    
+    encryption {
+        algorithm: "AES-256"
+    }
 }
 ```
 
 ---
 
-## MONITOR Block (v1.1+)
+## MONITOR Block — Full Metrics Support
 
-Advanced system and training telemetry monitoring. Extends `METRICS` and `LOGGING` with system-level monitoring.
+The `MONITOR` block tracks ANY available training or system metric. It supports all native and custom metrics, including but not limited to:
+
+**Training Metrics:**
+- `loss`, `val_loss` - Training and validation loss
+- `accuracy`, `val_accuracy` - Classification accuracy
+- `precision`, `recall`, `f1_score` - Classification metrics
+- `perplexity` - Language model perplexity
+- `bleu`, `rouge` - Generation quality metrics
+- `cer`, `wer` - Character/Word error rates
+- `confidence` - Model confidence scores
+- `hallucination_score` - Hallucination detection
+
+**System Metrics:**
+- `gpu_usage`, `gpu_memory_used`, `gpu_memory_free` - GPU utilization
+- `ram_usage`, `cpu_usage` - System resource usage
+- `gpu_temperature` - GPU temperature monitoring
+- `step_time`, `throughput`, `latency` - Performance metrics
+- `token_count` - Token usage statistics
 
 ```ebnf
 <monitor_block> ::=
   "MONITOR" "{"
+      [<monitor_metrics>]
+      [<monitor_notify_if>]
+      [<monitor_log_to>]
       [<monitor_level>]
-      [<monitor_log_metrics>]
       [<monitor_log_system>]
       [<monitor_log_speed>]
       [<monitor_refresh_interval>]
@@ -975,11 +1539,22 @@ Advanced system and training telemetry monitoring. Extends `METRICS` and `LOGGIN
       [<monitor_dashboard>]
   "}"
 
+<monitor_metrics> ::=
+  "metrics" ":" "[" <metric_list> "]"
+
+<monitor_notify_if> ::=
+  "notify_if" "{"
+      { <notify_condition> }
+  "}"
+
+<notify_condition> ::=
+  <metric_name> <comparison_operator> <value>
+
+<monitor_log_to> ::=
+  "log_to" ":" <path>
+
 <monitor_level> ::=
   "level" ":" ("basic" | "full")
-
-<monitor_log_metrics> ::=
-  "log_metrics" ":" "[" <metric_list> "]"
 
 <monitor_log_system> ::=
   "log_system" ":" "[" <system_metric_list> "]"
@@ -994,63 +1569,106 @@ Advanced system and training telemetry monitoring. Extends `METRICS` and `LOGGIN
   "export_to" ":" <path>
 
 <monitor_dashboard> ::=
-  "dashboard" ":" ("true" | "false")
+  "dashboard" ":" <boolean>
 
 <metric_list> ::=
   <string> { "," <string> }
 
 <system_metric_list> ::=
-  ("gpu_memory_used" | "gpu_memory_free" | "cpu_usage" | "ram_used" | "disk_io" | "temperature") { "," <system_metric> }
+  ("gpu_memory_used" | "gpu_memory_free" | "gpu_usage" | "cpu_usage" | "ram_usage" | "ram_used" | "disk_io" | "gpu_temperature" | "temperature") { "," <system_metric> }
 
 <speed_metric_list> ::=
-  ("tokens_per_second" | "samples_per_second") { "," <speed_metric> }
+  ("tokens_per_second" | "samples_per_second" | "throughput" | "latency" | "step_time") { "," <speed_metric> }
 
 <time_interval> ::=
   <number> ("s" | "ms")
 ```
 
-**System Metrics:**
-- `gpu_memory_used` / `gpu_memory_free`: GPU memory usage (requires CUDA)
-- `cpu_usage`: CPU utilization percentage
-- `ram_used`: RAM usage in MB
-- `disk_io`: Disk I/O operations per second
-- `temperature`: GPU/CPU temperature (if available)
+**Supported Metrics (Complete List):**
 
-**Speed Metrics:**
-- `tokens_per_second`: Token processing speed
-- `samples_per_second`: Sample processing speed
+**Training Metrics:**
+- `loss`, `val_loss` - Loss values
+- `accuracy`, `val_accuracy` - Accuracy metrics
+- `precision`, `recall`, `f1_score` - Classification metrics
+- `perplexity` - Language model perplexity
+- `bleu`, `rouge`, `rouge_l`, `rouge_1`, `rouge_2` - Generation metrics
+- `cer`, `wer` - Error rates
+- `confidence` - Confidence scores
+- `hallucination_score` - Hallucination detection
+
+**System Metrics:**
+- `gpu_usage`, `gpu_memory_used`, `gpu_memory_free`, `gpu_temperature` - GPU metrics
+- `ram_usage`, `cpu_usage` - System resources
+- `step_time`, `throughput`, `latency` - Performance
+- `token_count` - Token statistics
 
 **Constraints:**
-- `level: "basic"` logs only essential metrics
-- `level: "full"` logs all available metrics
+- `metrics`: Array of metric names to track
+- `notify_if`: Conditions that trigger notifications
+- `log_to`: Path to log file (optional)
 - GPU metrics only logged if CUDA is available
 - `refresh_interval` must be >= 1s
 
 **Example:**
 ```okt
 MONITOR {
+    metrics: [
+        "loss",
+        "accuracy",
+        "val_loss",
+        "gpu_usage",
+        "ram_usage",
+        "throughput",
+        "latency",
+        "confidence"
+    ]
+    
+    notify_if {
+        loss > 2.0
+        gpu_usage > 90%
+        temperature > 85
+        hallucination_score > 0.5
+    }
+    
+    log_to: "logs/training.log"
+}
+```
+
+**Example (Full monitoring):**
+```okt
+MONITOR {
     level: "full"
-    log_metrics: [
+    metrics: [
         "loss",
         "val_loss",
         "accuracy",
         "f1",
-        "perplexity"
+        "perplexity",
+        "confidence",
+        "hallucination_score"
     ]
     log_system: [
         "gpu_memory_used",
         "gpu_memory_free",
         "cpu_usage",
         "ram_used",
-        "temperature"
+        "gpu_temperature"
     ]
     log_speed: [
         "tokens_per_second",
-        "samples_per_second"
+        "samples_per_second",
+        "throughput",
+        "latency"
     ]
+    notify_if {
+        loss > 2.0
+        gpu_usage > 90%
+        val_loss > 2.5
+    }
     refresh_interval: 2s
     export_to: "runs/logs/system.json"
     dashboard: true
+    log_to: "logs/training.log"
 }
 ```
 
@@ -1058,6 +1676,368 @@ MONITOR {
 - `MONITOR` extends (does not replace) `METRICS` and `LOGGING`
 - System metrics are logged separately from training metrics
 - Dashboard provides real-time visualization (if `dashboard: true`)
+- `notify_if` triggers alerts when conditions are met
+
+---
+
+## GUARD Block — Safety / Ethics / Protection
+
+The `GUARD` block defines safety rules during generation and training. It prevents harmful outputs and ensures ethical AI behavior. The engine knows exactly what to prevent, how to detect violations, and what action to take.
+
+```ebnf
+<guard_block> ::=
+  "GUARD" "{"
+      [<guard_prevent>]
+      [<guard_detect_using>]
+      [<guard_on_violation>]
+  "}"
+
+<guard_prevent> ::=
+  "prevent" "{"
+      { <prevention_type> }
+  "}"
+
+<guard_detect_using> ::=
+  "detect_using" ":" "[" ("classifier" | "embedding" | "regex" | "rule_engine" | "ml_model") { "," ("classifier" | "embedding" | "regex" | "rule_engine" | "ml_model") } "]"
+
+<prevention_type> ::=
+  "hallucination" |
+  "toxicity" |
+  "bias" |
+  "data_leak" |
+  "unsafe_code" |
+  "personal_data" |
+  "illegal_content"
+
+<guard_on_violation> ::=
+  "on_violation" "{"
+      <violation_action>
+      [ "with_message" ":" <string> ]
+  "}"
+
+<violation_action> ::=
+  "STOP" | "ALERT" | "REPLACE" | "LOG"
+```
+
+**Prevention types:**
+- `hallucination` - Prevents fabricated or false information
+- `toxicity` - Prevents toxic, harmful, or offensive content
+- `bias` - Prevents biased or discriminatory outputs
+- `data_leak` - Prevents training data leakage
+- `unsafe_code` - Prevents unsafe code generation
+- `personal_data` - Prevents personal information leakage
+- `illegal_content` - Prevents illegal content generation
+
+**Detection methods:**
+- `classifier` - Use ML classifier to detect violations
+- `embedding` - Use embedding similarity to detect violations
+- `regex` - Use regex patterns to detect violations
+- `rule_engine` - Use rule-based engine to detect violations
+- `ml_model` - Use custom ML model to detect violations
+
+**Violation actions:**
+- `STOP` - Stop generation immediately
+- `ALERT` - Log alert and continue
+- `REPLACE` - Replace with safe fallback (requires `with_message`)
+- `LOG` - Log violation for analysis
+
+**Example (Strict Mode):**
+```okt
+GUARD {
+    prevent {
+        hallucination
+        toxicity
+        bias
+        data_leak
+        illegal_content
+    }
+    
+    detect_using: ["classifier", "regex", "embedding"]
+    
+    on_violation {
+        REPLACE
+        with_message: "Sorry, this request is not allowed."
+    }
+}
+```
+
+**Example (Alert mode):**
+```okt
+GUARD {
+    prevent {
+        toxicity
+        bias
+    }
+    
+    detect_using: ["classifier", "rule_engine"]
+    
+    on_violation {
+        ALERT
+    }
+}
+```
+
+---
+
+## BEHAVIOR Block — Model Personality
+
+The `BEHAVIOR` block defines how the model should behave in chat/inference. It sets personality, verbosity, language, and content restrictions.
+
+```ebnf
+<behavior_block> ::=
+  "BEHAVIOR" "{"
+      [<behavior_mode>]
+      [<behavior_personality>]
+      [<behavior_verbosity>]
+      [<behavior_language>]
+      [<behavior_avoid>]
+      [<behavior_fallback>]
+      [<behavior_style_prompt>]
+  "}"
+
+<behavior_mode> ::=
+  "mode" ":" ("chat" | "completion" | "instruction" | "classifier")
+
+<behavior_personality> ::=
+  "personality" ":" ("professional" | "friendly" | "assistant" | "casual" | "formal" | "creative")
+
+<behavior_verbosity> ::=
+  "verbosity" ":" ("low" | "medium" | "high")
+
+<behavior_language> ::=
+  "language" ":" ("en" | "pt-BR" | "es" | "fr" | "de" | "it" | "ja" | "zh" | "multilingual")
+
+<behavior_avoid> ::=
+  "avoid" ":" "[" <string_list> "]"
+
+<behavior_fallback> ::=
+  "fallback" ":" <string>
+
+<behavior_style_prompt> ::=
+  "prompt_style" ":" <string>
+```
+
+**Mode types:**
+- `chat` - Conversational chat mode
+- `completion` - Text completion mode
+- `instruction` - Instruction-following mode
+- `classifier` - Classification mode
+
+**Personality types:**
+- `professional` - Formal, business-like responses
+- `friendly` - Warm, approachable tone
+- `assistant` - Helpful, service-oriented
+- `casual` - Relaxed, informal tone
+- `formal` - Very formal, academic tone
+- `creative` - Imaginative, expressive responses
+
+**Verbosity levels:**
+- `low` - Concise, brief responses
+- `medium` - Balanced detail
+- `high` - Detailed, comprehensive responses
+
+**prompt_style allows you to define:**
+- ChatGPT-style format
+- Translation format
+- Classification format
+- Custom format (e.g., NLP tasks)
+
+**Example (Professional Chatbot):**
+```okt
+BEHAVIOR {
+    mode: "chat"
+    personality: "professional"
+    verbosity: "medium"
+    language: "pt-BR"
+    avoid: ["violence", "hate", "politics"]
+    fallback: "Como posso ajudar?"
+    prompt_style: "User: {input}\nAssistant:"
+}
+```
+
+**Example (Friendly assistant):**
+```okt
+BEHAVIOR {
+    mode: "chat"
+    personality: "friendly"
+    verbosity: "high"
+    language: "en"
+    avoid: ["violence", "explicit content"]
+    fallback: "I'm here to help! How can I assist you?"
+    prompt_style: "User: {input}\nAssistant:"
+}
+```
+
+---
+
+## EXPLORER Block — Parameter Search
+
+The `EXPLORER` block enables basic hyperparameter exploration (AutoML-style). It automatically tests different parameter combinations and selects the best configuration.
+
+```ebnf
+<explorer_block> ::=
+  "EXPLORER" "{"
+      <explorer_try>
+      [<explorer_max_tests>]
+      [<explorer_pick_best_by>]
+  "}"
+
+<explorer_try> ::=
+  "try" "{"
+      { <explorer_lr> | <explorer_batch_size> | <explorer_optimizer> | <explorer_scheduler> | <explorer_other> }
+  "}"
+
+<explorer_lr> ::=
+  "lr" ":" "[" <decimal_list> "]"
+
+<explorer_batch_size> ::=
+  "batch_size" ":" "[" <number_list> "]"
+
+<explorer_optimizer> ::=
+  "optimizer" ":" "[" <string_list> "]"
+
+<explorer_scheduler> ::=
+  "scheduler" ":" "[" <string_list> "]"
+
+<explorer_other> ::=
+  <identifier> ":" "[" <value_list> "]"
+
+<explorer_max_tests> ::=
+  "max_tests" ":" <number>
+
+<explorer_pick_best_by> ::=
+  "pick_best_by" ":" <metric_name>
+
+<decimal_list> ::=
+  <decimal> { "," <decimal> }
+
+<number_list> ::=
+  <number> { "," <number> }
+
+<value_list> ::=
+  <value> { "," <value> }
+```
+
+**Constraints:**
+- `max_tests`: Must be <= 50 (to prevent excessive exploration)
+- `pick_best_by`: Must be a valid metric name (e.g., `"val_loss"`, `"accuracy"`)
+- Explorer will test combinations and select the best configuration based on the specified metric
+
+**Example:**
+```okt
+EXPLORER {
+    try {
+        lr: [0.001, 0.0005, 0.0001]
+        batch_size: [4, 8, 16]
+        optimizer: ["adamw", "sgd"]
+    }
+    
+    max_tests: 5
+    pick_best_by: "val_loss"
+}
+```
+
+**Example (Extended exploration):**
+```okt
+EXPLORER {
+    try {
+        lr: [0.0003, 0.0001, 0.00005]
+        batch_size: [8, 16, 32]
+        optimizer: ["adamw", "adam"]
+        scheduler: ["cosine", "linear"]
+    }
+    
+    max_tests: 12
+    pick_best_by: "val_accuracy"
+}
+```
+
+---
+
+## STABILITY Block — Training Safety
+
+The `STABILITY` block controls training stability and prevents common training failures.
+
+```ebnf
+<stability_block> ::=
+  "STABILITY" "{"
+      [<stability_stop_if_nan>]
+      [<stability_stop_if_diverges>]
+      [<stability_min_improvement>]
+  "}"
+
+<stability_stop_if_nan> ::=
+  "stop_if_nan" ":" <boolean>
+
+<stability_stop_if_diverges> ::=
+  "stop_if_diverges" ":" <boolean>
+
+<stability_min_improvement> ::=
+  "min_improvement" ":" <decimal>
+```
+
+**Constraints:**
+- `stop_if_nan`: Boolean - Stop training if NaN values are detected
+- `stop_if_diverges`: Boolean - Stop training if loss diverges
+- `min_improvement`: Float - Minimum improvement threshold (e.g., 0.001)
+
+**Example:**
+```okt
+STABILITY {
+    stop_if_nan: true
+    stop_if_diverges: true
+    min_improvement: 0.001
+}
+```
+
+**Example (Relaxed stability):**
+```okt
+STABILITY {
+    stop_if_nan: true
+    stop_if_diverges: false
+    min_improvement: 0.0001
+}
+```
+
+---
+
+## Boolean Support
+
+The OktoScript language supports boolean values:
+
+- `true`
+- `false`
+
+**Supported in:**
+- `CONTROL` block conditions and actions
+- `STABILITY` block flags
+- `BEHAVIOR` block settings
+- `GUARD` block actions
+- `MONITOR` block dashboard flag
+- `INFERENCE` block `do_sample` parameter
+- Any block that requires boolean values
+
+**Example:**
+```okt
+STABILITY {
+    stop_if_nan: true
+    stop_if_diverges: false
+}
+
+BEHAVIOR {
+    personality: "friendly"
+}
+
+MONITOR {
+    dashboard: true
+}
+
+INFERENCE {
+    params {
+        do_sample: true
+    }
+}
+```
 
 ---
 
@@ -1400,6 +2380,8 @@ TRAIN {
 
 <decimal> ::= digit { digit } "." digit { digit }
 
+<boolean> ::= "true" | "false"
+
 digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 ```
 
@@ -1408,6 +2390,126 @@ digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 - `path`: Can be absolute or relative, must be valid filesystem path
 - `number`: Integer, range depends on field (typically 0 to 2^31-1)
 - `decimal`: Floating point, precision up to 6 decimal places
+- `boolean`: Literal values `true` or `false` (lowercase)
+
+---
+
+## Full Script Example
+
+Complete example demonstrating all new blocks:
+
+```okt
+# okto_version: "1.2"
+PROJECT "oktogpt"
+DESCRIPTION "Complete example with all new blocks"
+
+MODEL {
+    name: "oktogpt"
+    base: "google/flan-t5-base"
+    device: "cuda"
+    
+    ADAPTER {
+        type: "lora"
+        path: "D:/model_trainee/phase1_sharegpt/ep2"
+        rank: 16
+        alpha: 32
+    }
+}
+
+MONITOR {
+    metrics: [
+        "loss",
+        "val_loss",
+        "accuracy",
+        "gpu_usage",
+        "ram_usage",
+        "throughput",
+        "latency",
+        "confidence"
+    ]
+    
+    notify_if {
+        loss > 2.0
+        gpu_usage > 90%
+        temperature > 85
+        hallucination_score > 0.5
+    }
+    
+    log_to: "logs/training.log"
+}
+
+BEHAVIOR {
+    personality: "assistant"
+    language: "pt-BR"
+    verbosity: "medium"
+    avoid: ["politics", "violence", "hate"]
+    fallback: "Como posso ajudar?"
+}
+
+STABILITY {
+    stop_if_nan: true
+    stop_if_diverges: true
+    min_improvement: 0.001
+}
+
+EXPLORER {
+    try {
+        lr: [0.0003, 0.0001]
+        batch_size: [4, 8]
+    }
+    max_tests: 4
+    pick_best_by: "val_loss"
+}
+
+CONTROL {
+    on_epoch_end {
+        SAVE model
+        LOG "Epoch completed"
+    }
+    
+    IF val_loss > 2.0 {
+        STOP_TRAINING
+    }
+    
+    WHEN gpu_memory < 12GB {
+        SET batch_size = 4
+    }
+}
+
+INFERENCE {
+    mode: "chat"
+    format: "User: {input}\nAssistant:"
+    
+    params {
+        temperature: 0.7
+        max_length: 120
+        top_p: 0.9
+        beams: 2
+        do_sample: true
+    }
+    
+    CONTROL {
+        IF confidence < 0.3 { RETRY }
+        IF hallucination_score > 0.5 { REPLACE WITH "Desculpe, não tenho certeza." }
+    }
+    
+    exit_command: "/exit"
+}
+
+GUARD {
+    prevent {
+        hallucination
+        toxicity
+        bias
+        data_leak
+        unsafe_code
+    }
+    
+    on_violation {
+        STOP
+    }
+}
+```
 
 ---
 
@@ -1425,13 +2527,22 @@ See [`../examples/`](../examples/) for complete working examples:
 
 ---
 
-**Version:** 1.1  
-**Last Updated:** November 2025  
+**Version:** 1.2  
+**Last Updated:** December 2025  
 **Maintained by:** OktoSeek AI
 
 ---
 
 ## Version History
+
+### v1.2 (December 2025)
+- ✅ Enhanced `CONTROL` block with nested blocks support
+- ✅ Enhanced `BEHAVIOR` block with `mode` and `prompt_style`
+- ✅ Enhanced `GUARD` block with `detect_using` and additional prevention types
+- ✅ Enhanced `DEPLOY` block with `host`, `protocol`, and `format`
+- ✅ Enhanced `SECURITY` block with `input_validation`, `output_validation`, `rate_limit`, and `encryption`
+- ✅ Added support for nested IF/WHEN/EVERY statements inside event hooks
+- ✅ 100% backward compatible with v1.0 and v1.1
 
 ### v1.1 (November 2025)
 - ✅ Added `FT_LORA` block for LoRA fine-tuning

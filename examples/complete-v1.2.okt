@@ -1,0 +1,210 @@
+# okto_version: "1.2"
+PROJECT "CompleteV12Example"
+DESCRIPTION "Complete example demonstrating all v1.2 features"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "16GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  validation: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+  language: "en"
+}
+
+MODEL {
+  name: "complete-v12-model"
+  base: "google/flan-t5-base"
+  device: "cuda"
+  
+  ADAPTER {
+    type: "lora"
+    path: "./adapters/my-adapter"
+    rank: 16
+    alpha: 32
+  }
+}
+
+TRAIN {
+  epochs: 10
+  batch_size: 32
+  learning_rate: 0.0001
+  optimizer: "adamw"
+  scheduler: "cosine"
+  device: "cuda"
+  checkpoint_steps: 100
+}
+
+METRICS {
+  accuracy
+  loss
+  perplexity
+  f1
+  confidence
+}
+
+MONITOR {
+  metrics: [
+    "loss",
+    "val_loss",
+    "accuracy",
+    "gpu_usage",
+    "ram_usage",
+    "throughput",
+    "latency",
+    "confidence"
+  ]
+  
+  notify_if {
+    loss > 2.0
+    gpu_usage > 90%
+    temperature > 85
+    hallucination_score > 0.5
+  }
+  
+  log_to: "logs/training.log"
+}
+
+BEHAVIOR {
+  mode: "chat"
+  personality: "assistant"
+  verbosity: "medium"
+  language: "en"
+  avoid: ["politics", "violence", "hate"]
+  fallback: "How can I help you?"
+  prompt_style: "User: {input}\nAssistant:"
+}
+
+STABILITY {
+  stop_if_nan: true
+  stop_if_diverges: true
+  min_improvement: 0.001
+}
+
+EXPLORER {
+  try {
+    lr: [0.0003, 0.0001]
+    batch_size: [16, 32]
+  }
+  max_tests: 4
+  pick_best_by: "val_loss"
+}
+
+CONTROL {
+  on_epoch_end {
+    SAVE model
+    LOG "Epoch completed"
+    
+    IF loss > 2.0 {
+      SET LR = 0.00005
+      LOG "High loss detected"
+      
+      WHEN gpu_usage > 90% {
+        SET batch_size = 16
+        LOG "Reducing batch size due to GPU pressure"
+      }
+    }
+    
+    IF val_loss > 2.5 {
+      STOP_TRAINING
+    }
+    
+    IF accuracy > 0.9 {
+      SAVE "best_model"
+      LOG "High accuracy reached"
+    }
+  }
+  
+  validate_every: 200
+  
+  WHEN gpu_memory < 12GB {
+    SET batch_size = 16
+  }
+  
+  EVERY 500 steps {
+    SAVE checkpoint
+  }
+}
+
+INFERENCE {
+  mode: "chat"
+  format: "User: {input}\nAssistant:"
+  exit_command: "/exit"
+  
+  params {
+    temperature: 0.7
+    max_length: 120
+    top_p: 0.9
+    beams: 2
+    do_sample: true
+  }
+  
+  CONTROL {
+    IF confidence < 0.3 { RETRY }
+    IF hallucination_score > 0.5 { REPLACE WITH "I'm not certain about that." }
+  }
+}
+
+GUARD {
+  prevent {
+    hallucination
+    toxicity
+    bias
+    data_leak
+    unsafe_code
+  }
+  
+  detect_using: ["classifier", "regex", "embedding"]
+  
+  on_violation {
+    REPLACE
+    with_message: "Sorry, this request is not allowed."
+  }
+}
+
+SECURITY {
+  input_validation {
+    max_length: 500
+    disallow_patterns: [
+      "<script>",
+      "DROP TABLE",
+      "rm -rf"
+    ]
+  }
+  
+  output_validation {
+    prevent_data_leak: true
+    mask_personal_info: true
+  }
+  
+  rate_limit {
+    max_requests_per_minute: 60
+  }
+  
+  encryption {
+    algorithm: "AES-256"
+  }
+}
+
+EXPORT {
+  format: ["okm", "onnx", "gguf"]
+  path: "export/"
+}
+
+DEPLOY {
+  target: "api"
+  host: "0.0.0.0"
+  endpoint: "/chatbot"
+  requires_auth: true
+  port: 9000
+  max_concurrent_requests: 100
+  protocol: "http"
+  format: "onnx"
+}
+

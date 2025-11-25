@@ -55,7 +55,7 @@
 1. **Read the guide:** [`docs/GETTING_STARTED.md`](./docs/GETTING_STARTED.md)
 2. **Try an example:** [`examples/basic.okt`](./examples/basic.okt)
 3. **Validate:** `okto validate examples/basic.okt`
-4. **Train:** `okto run examples/basic.okt`
+4. **Train:** `okto train examples/basic.okt`
 
 📚 **Full documentation:** [`docs/grammar.md`](./docs/grammar.md)  
 🔍 **Validation rules:** [`VALIDATION_RULES.md`](./VALIDATION_RULES.md)
@@ -213,7 +213,17 @@ EXPORT {
 
 📘 **Full grammar specification available in** [`/docs/grammar.md`](./docs/grammar.md)
 
-## 🆕 What's New in v1.1
+## 🆕 What's New in v1.2
+
+OktoScript v1.2 adds powerful new features while maintaining 100% backward compatibility with v1.0 and v1.1:
+
+- ✅ **Nested CONTROL Blocks** - Support for nested IF/WHEN/EVERY statements inside event hooks
+- ✅ **Enhanced BEHAVIOR** - Added `mode` and `prompt_style` for better control
+- ✅ **Enhanced GUARD** - Added `detect_using` and additional prevention types
+- ✅ **Enhanced DEPLOY** - Added `host`, `protocol`, and `format` options
+- ✅ **Enhanced SECURITY** - Added input/output validation, rate limiting, and encryption
+
+## What's New in v1.1
 
 OktoScript v1.1 adds powerful new features while maintaining 100% backward compatibility with v1.0:
 
@@ -221,6 +231,14 @@ OktoScript v1.1 adds powerful new features while maintaining 100% backward compa
 - ✅ **Dataset Mixing** - Combine multiple datasets with weighted sampling
 - ✅ **System Monitoring** - Advanced telemetry with `MONITOR` block
 - ✅ **Version Declaration** - Specify OktoScript version in your files
+- ✅ **MODEL Adapters** - LoRA/PEFT adapter support in MODEL block
+- ✅ **Enhanced INFERENCE** - Rich inference configuration with format templates and nested CONTROL
+- ✅ **CONTROL Block** - Cognitive-level decision engine for training and inference
+- ✅ **GUARD Block** - Safety and ethics protection
+- ✅ **BEHAVIOR Block** - Model personality and behavior configuration
+- ✅ **EXPLORER Block** - AutoML-style hyperparameter exploration
+- ✅ **STABILITY Block** - Training stability and safety controls
+- ✅ **Boolean Support** - Native true/false values throughout the language
 
 📚 **More examples and use cases:** See [`/examples/`](./examples/) for complete examples including:
 
@@ -291,64 +309,187 @@ METRICS {
 
 ## 🖥️ CLI Commands
 
-The OktoEngine provides a complete CLI interface for working with OktoScript files. These commands are available both in the terminal and are called by the OktoSeek IDE.
+The OktoEngine CLI is minimal by design. All intelligence lives in the `.okt` file. The terminal is just the execution port.
 
-### Main Commands
+### Core Commands
 
-**Run complete pipeline:**
+**Initialize a project:**
 ```bash
-# Executes the entire .okt file: dataset → model → train → evaluate → infer → deploy
-okto run pizzabot.okt
-```
-
-**Train a model:**
-```bash
-okto_train --config pizzabot.okt
-```
-
-**Run inference:**
-```bash
-okto_infer --model ./models/pizzabot-v1 --text "Boa noite, quero uma pizza grande"
-
-# Or chat mode:
-okto_infer --model pizzabot-v1 --chat
-```
-
-**Evaluate a model:**
-```bash
-okto_eval --model ./models/pizzabot-v1 --dataset ./datasets/test.jsonl
-```
-
-**Convert formats:**
-```bash
-okto_convert --from pt --to gguf --input ./models/pizzabot-v1.pt --output ./models/pizzabot-v1.gguf
+okto init
 ```
 
 **Validate syntax:**
 ```bash
-okto_validate pizzabot.okt
+okto validate script.okt
 ```
 
-**Deploy model:**
+**Train a model:**
 ```bash
-okto_deploy --model pizzabot-v1 --target api --port 8080
-okto_deploy --model pizzabot-v1 --target android
+okto train script.okt
+```
+
+**Evaluate a model:**
+```bash
+okto eval script.okt
+```
+
+**Export model:**
+```bash
+okto export script.okt
+```
+
+**Convert model formats:**
+```bash
+okto convert --input <model_path> --from <format> --to <format> --output <output_path>
+```
+
+**Supported formats:**
+| From / To | Usage |
+|-----------|-------|
+| `pt`, `bin` | PyTorch |
+| `onnx` | Web / Interoperability |
+| `tflite` | Mobile (Android / iOS) |
+| `gguf` | Local LLMs (llama.cpp) |
+| `okm` | Okto Model Format |
+| `safetensors` | Safe and fast |
+
+**Convert examples:**
+```bash
+# PyTorch → GGUF (local inference)
+okto convert --input model.pt --from pt --to gguf --output model.gguf
+
+# PyTorch → TFLite (mobile)
+okto convert --input model.pt --from pt --to tflite --output model.tflite
+
+# PyTorch → ONNX (web)
+okto convert --input model.pt --from pt --to onnx --output model.onnx
 ```
 
 **List resources:**
 ```bash
-okto_list projects
-okto_list models
-okto_list datasets
+okto list projects
+okto list models
+okto list datasets
+okto list exports
 ```
 
 **System diagnostics:**
 ```bash
-okto_doctor
+okto doctor
 # Shows: GPU, CUDA, RAM, Drivers, Disks, Recommendations
 ```
 
-### Quick Examples:
+### Inference Commands
+
+**Direct inference (single input/output):**
+```bash
+okto infer --model <model_path> --text "<input>"
+```
+
+**Example:**
+```bash
+okto infer --model models/pizzabot.okm --text "Good evening, I want a pizza"
+```
+
+Automatically respects:
+- `BEHAVIOR` block
+- `GUARD` block
+- `INFERENCE` block
+- `CONTROL` block (if defined)
+
+**Interactive chat mode:**
+```bash
+okto chat --model <model_path>
+```
+
+Opens an interactive loop:
+```
+🟢 Okto Chat started (type 'exit' to quit)
+
+You: hi
+Bot: Hello! How can I help you?
+
+You: what flavors do you have?
+Bot: We have...
+
+You: exit
+🔴 Session ended
+```
+
+This command:
+- Uses `prompt_style` from BEHAVIOR
+- Uses `BEHAVIOR` settings
+- Respects `GUARD` rules
+- Can use MEMORY in the future
+
+### Advanced Commands
+
+**Compare two models:**
+```bash
+okto compare <model1> <model2>
+```
+
+**Example:**
+```bash
+okto compare models/pizza_v1.okm models/pizza_v2.okm
+```
+
+Expected output:
+```
+Latency: V2 - 23% faster
+Accuracy: V1 - 4% better
+Loss: V2 - lower
+Recommendation: V2
+```
+
+Perfect for A/B testing.
+
+**View historical logs:**
+```bash
+okto logs <model_or_run_id>
+```
+
+**Example:**
+```bash
+okto logs pizzabot_v1
+```
+
+Shows:
+- Loss per epoch
+- Validation loss
+- Accuracy
+- CPU/GPU/RAM usage
+- Decisions made (CONTROL block)
+
+**Auto-tune training:**
+```bash
+okto tune script.okt
+```
+
+Uses the `CONTROL` block to auto-adjust training based on metrics. Can:
+- Adjust learning rate
+- Change batch size
+- Activate early stopping
+- Balance classes
+
+This is unique in the market.
+
+**Exit interactive mode:**
+```bash
+okto exit
+```
+
+Used to exit chat, interactive mode, or session context.
+
+### Utility Commands
+
+```bash
+okto upgrade    # Update OktoEngine
+okto about     # Show about information
+okto --version # Show version
+```
+
+### Quick Examples
 
 ```bash
 # Validate and train
@@ -357,7 +498,11 @@ okto train examples/chatbot.okt
 
 # Evaluate and export
 okto eval examples/recommender.okt
-okto export examples/computer_vision.okt --format=okm
+okto export examples/computer_vision.okt
+
+# Inference
+okto infer --model models/bot.okm --text "Hello"
+okto chat --model models/bot.okm
 ```
 
 ---
@@ -485,6 +630,19 @@ The FAQ covers technical details, design decisions, use cases, and best practice
 > *"Knowledge must be shared between people so that we can create solutions we could never imagine."*
 > 
 > — **OktoSeek AI**
+
+### 🎯 Design Principles
+
+OktoScript is built on the principle that AI development should be:
+
+1. **Declarative** - Describe what you want, not how to do it
+2. **Self-aware** - Models can monitor and adjust themselves
+3. **Safe** - Built-in guards against harmful outputs
+4. **Adaptive** - Automatic optimization and exploration
+5. **Transparent** - Clear, readable configuration files
+6. **Powerful** - Complex capabilities with simple syntax
+
+The language evolves to support increasingly sophisticated AI behaviors while maintaining its core simplicity.
 
 ---
 

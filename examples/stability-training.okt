@@ -1,0 +1,60 @@
+# okto_version: "1.2"
+PROJECT "StabilityTrainingExample"
+DESCRIPTION "Demonstrates STABILITY block for safe training"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  validation: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "stable-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+TRAIN {
+  epochs: 20
+  batch_size: 32
+  learning_rate: 0.0001
+  device: "cuda"
+}
+
+STABILITY {
+  stop_if_nan: true
+  stop_if_diverges: true
+  min_improvement: 0.001
+}
+
+CONTROL {
+  on_nan {
+    STOP_TRAINING
+    LOG "NaN detected, stopping training"
+  }
+  
+  IF loss > 10.0 {
+    STOP_TRAINING
+    LOG "Loss diverged, stopping training"
+  }
+}
+
+MONITOR {
+  metrics: ["loss", "val_loss"]
+  notify_if {
+    loss > 5.0
+  }
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

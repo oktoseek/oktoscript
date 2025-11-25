@@ -1,0 +1,89 @@
+# okto_version: "1.2"
+PROJECT "MonitorFullExample"
+DESCRIPTION "Demonstrates complete MONITOR block with all metrics"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "16GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  validation: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "monitor-full-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+TRAIN {
+  epochs: 10
+  batch_size: 32
+  learning_rate: 0.0001
+  device: "cuda"
+}
+
+MONITOR {
+  metrics: [
+    "loss",
+    "val_loss",
+    "accuracy",
+    "val_accuracy",
+    "precision",
+    "recall",
+    "f1_score",
+    "perplexity",
+    "confidence",
+    "hallucination_score"
+  ]
+  
+  notify_if {
+    loss > 2.0
+    gpu_usage > 90%
+    gpu_temperature > 85
+    val_loss > 2.5
+    hallucination_score > 0.5
+  }
+  
+  log_system: [
+    "gpu_usage",
+    "gpu_memory_used",
+    "gpu_memory_free",
+    "gpu_temperature",
+    "cpu_usage",
+    "ram_usage"
+  ]
+  
+  log_speed: [
+    "tokens_per_second",
+    "samples_per_second",
+    "throughput",
+    "latency",
+    "step_time"
+  ]
+  
+  refresh_interval: 2s
+  export_to: "runs/logs/system.json"
+  dashboard: true
+  log_to: "logs/training.log"
+}
+
+CONTROL {
+  on_epoch_end {
+    IF gpu_temperature > 85 {
+      SET batch_size = 16
+      LOG "GPU temperature high, reducing batch size"
+    }
+  }
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

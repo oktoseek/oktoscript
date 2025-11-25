@@ -1,0 +1,92 @@
+# okto_version: "1.2"
+PROJECT "InferenceAdvancedExample"
+DESCRIPTION "Demonstrates advanced INFERENCE block with nested CONTROL"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "inference-advanced-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 32
+  device: "cuda"
+}
+
+BEHAVIOR {
+  mode: "chat"
+  personality: "friendly"
+  verbosity: "high"
+  language: "en"
+  prompt_style: "User: {input}\nAssistant:"
+}
+
+INFERENCE {
+  mode: "chat"
+  format: "User: {input}\nAssistant:"
+  exit_command: "/exit"
+  
+  params {
+    max_length: 200
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 40
+    beams: 2
+    do_sample: true
+    repetition_penalty: 1.1
+  }
+  
+  CONTROL {
+    IF confidence < 0.3 {
+      RETRY
+      LOG "Low confidence, retrying"
+    }
+    
+    IF repetition > 3 {
+      REGENERATE
+      LOG "High repetition detected"
+    }
+    
+    IF hallucination_score > 0.5 {
+      REPLACE WITH "I'm not certain about that. Could you rephrase?"
+    }
+    
+    IF toxic == true {
+      REPLACE WITH "I cannot assist with that request."
+    }
+  }
+}
+
+GUARD {
+  prevent {
+    hallucination
+    toxicity
+    bias
+  }
+  
+  detect_using: ["classifier", "embedding"]
+  
+  on_violation {
+    REPLACE
+    with_message: "Sorry, I cannot process that request."
+  }
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

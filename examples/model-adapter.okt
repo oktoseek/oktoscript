@@ -1,0 +1,46 @@
+# okto_version: "1.2"
+PROJECT "ModelAdapterExample"
+DESCRIPTION "Demonstrates MODEL block with ADAPTER (LoRA/PEFT support)"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "adapter-model"
+  base: "google/flan-t5-base"
+  device: "cuda"
+  
+  ADAPTER {
+    type: "lora"
+    path: "./adapters/my-lora-adapter"
+    rank: 16
+    alpha: 32
+  }
+}
+
+TRAIN {
+  epochs: 3
+  batch_size: 16
+  learning_rate: 0.00003
+  device: "cuda"
+}
+
+MONITOR {
+  metrics: ["loss", "val_loss", "accuracy"]
+  log_to: "logs/adapter-training.log"
+}
+
+EXPORT {
+  format: ["okm", "safetensors"]
+  path: "export/"
+}
+

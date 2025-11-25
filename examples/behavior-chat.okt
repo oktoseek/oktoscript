@@ -1,0 +1,78 @@
+# okto_version: "1.2"
+PROJECT "BehaviorChatExample"
+DESCRIPTION "Demonstrates BEHAVIOR block with mode and prompt_style"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+  language: "en"
+}
+
+MODEL {
+  name: "behavior-chat-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 32
+  learning_rate: 0.0001
+  device: "cuda"
+}
+
+BEHAVIOR {
+  mode: "chat"
+  personality: "friendly"
+  verbosity: "medium"
+  language: "en"
+  avoid: ["violence", "hate", "politics"]
+  fallback: "I'm here to help! How can I assist you?"
+  prompt_style: "User: {input}\nAssistant:"
+}
+
+INFERENCE {
+  mode: "chat"
+  format: "User: {input}\nAssistant:"
+  exit_command: "/exit"
+  
+  params {
+    max_length: 120
+    temperature: 0.7
+    top_p: 0.9
+    do_sample: true
+  }
+  
+  CONTROL {
+    IF confidence < 0.3 { RETRY }
+    IF repetition > 3 { REGENERATE }
+  }
+}
+
+GUARD {
+  prevent {
+    toxicity
+    bias
+    hallucination
+  }
+  
+  detect_using: ["classifier", "regex"]
+  
+  on_violation {
+    REPLACE
+    with_message: "Sorry, this request is not allowed."
+  }
+}
+
+EXPORT {
+  format: ["okm", "onnx"]
+  path: "export/"
+}
+

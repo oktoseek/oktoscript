@@ -1,0 +1,78 @@
+# okto_version: "1.2"
+PROJECT "SecurityFullExample"
+DESCRIPTION "Demonstrates complete SECURITY block configuration"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "secure-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 32
+  device: "cuda"
+}
+
+SECURITY {
+  input_validation {
+    max_length: 1000
+    disallow_patterns: [
+      "<script>",
+      "DROP TABLE",
+      "DELETE FROM",
+      "rm -rf",
+      "sudo",
+      "passwd",
+      "chmod 777",
+      "eval(",
+      "exec("
+    ]
+  }
+  
+  output_validation {
+    prevent_data_leak: true
+    mask_personal_info: true
+  }
+  
+  rate_limit {
+    max_requests_per_minute: 120
+  }
+  
+  encryption {
+    algorithm: "AES-256"
+  }
+}
+
+GUARD {
+  prevent {
+    toxicity
+    bias
+    data_leak
+    unsafe_code
+  }
+  
+  detect_using: ["classifier", "regex", "rule_engine"]
+  
+  on_violation {
+    ALERT
+  }
+}
+
+EXPORT {
+  format: ["okm", "onnx"]
+  path: "export/"
+}
+

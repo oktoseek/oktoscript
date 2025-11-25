@@ -38,6 +38,22 @@ These examples are used by:
 | [`lora-finetuning.okt`](./lora-finetuning.okt) | LoRA fine-tuning with dataset mixing | Efficient fine-tuning, memory-efficient training |
 | [`dataset-mixing.okt`](./dataset-mixing.okt) | Training with multiple weighted datasets | Combining datasets, weighted sampling |
 
+### v1.2 Examples (Advanced Features)
+
+| File | Description | Use Case |
+|------|-------------|----------|
+| [`control-nested.okt`](./control-nested.okt) | Nested CONTROL blocks with advanced decision-making | Dynamic training control, conditional logic |
+| [`behavior-chat.okt`](./behavior-chat.okt) | BEHAVIOR block with mode and prompt_style | Chatbot personality, response style |
+| [`guard-safety.okt`](./guard-safety.okt) | GUARD block with multiple detection methods | Content safety, ethical AI |
+| [`deploy-api.okt`](./deploy-api.okt) | DEPLOY block for API deployment | Production API deployment |
+| [`security-full.okt`](./security-full.okt) | Complete SECURITY block configuration | Input/output validation, rate limiting |
+| [`model-adapter.okt`](./model-adapter.okt) | MODEL block with ADAPTER (LoRA/PEFT) | Parameter-efficient fine-tuning |
+| [`inference-advanced.okt`](./inference-advanced.okt) | Advanced INFERENCE with nested CONTROL | Smart inference with retry logic |
+| [`monitor-full.okt`](./monitor-full.okt) | Complete MONITOR block with all metrics | Full system and training telemetry |
+| [`explorer-automl.okt`](./explorer-automl.okt) | EXPLORER block for hyperparameter search | AutoML-style optimization |
+| [`stability-training.okt`](./stability-training.okt) | STABILITY block for safe training | Training stability and safety |
+| [`complete-v1.2.okt`](./complete-v1.2.okt) | Complete example with all v1.2 features | Full feature demonstration |
+
 ### Complete Projects
 
 | File | Description | Use Case |

@@ -1,0 +1,70 @@
+# okto_version: "1.2"
+PROJECT "GuardSafetyExample"
+DESCRIPTION "Demonstrates GUARD block with multiple detection methods"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "guard-safety-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 32
+  device: "cuda"
+}
+
+GUARD {
+  prevent {
+    hallucination
+    toxicity
+    bias
+    data_leak
+    unsafe_code
+    personal_data
+    illegal_content
+  }
+  
+  detect_using: ["classifier", "embedding", "regex", "rule_engine", "ml_model"]
+  
+  on_violation {
+    STOP
+    with_message: "Content violation detected. Request blocked."
+  }
+}
+
+BEHAVIOR {
+  mode: "chat"
+  personality: "professional"
+  verbosity: "low"
+  language: "en"
+  fallback: "I cannot assist with that request."
+}
+
+INFERENCE {
+  mode: "chat"
+  format: "User: {input}\nAssistant:"
+  
+  params {
+    temperature: 0.5
+    max_length: 100
+  }
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

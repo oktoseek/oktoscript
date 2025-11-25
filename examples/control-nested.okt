@@ -1,0 +1,99 @@
+# okto_version: "1.2"
+PROJECT "ControlNestedExample"
+DESCRIPTION "Demonstrates nested CONTROL blocks with advanced decision-making"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+}
+
+DATASET {
+  train: "examples/datasets/demo_train.jsonl"
+  validation: "examples/datasets/demo_train.jsonl"
+  format: "jsonl"
+  type: "chat"
+}
+
+MODEL {
+  name: "nested-control-model"
+  base: "oktoseek/base-mini"
+  device: "cuda"
+}
+
+TRAIN {
+  epochs: 10
+  batch_size: 32
+  learning_rate: 0.0001
+  optimizer: "adamw"
+  device: "cuda"
+}
+
+CONTROL {
+  on_step_end {
+    LOG loss
+  }
+  
+  on_epoch_end {
+    IF loss > 2.0 {
+      SET LR = 0.00005
+      LOG "High loss detected, reducing learning rate"
+      
+      WHEN gpu_usage > 90% {
+        SET batch_size = 16
+        LOG "Reducing batch size due to GPU pressure"
+      }
+      
+      IF val_loss > 3.0 {
+        STOP_TRAINING
+      }
+    }
+    
+    IF accuracy > 0.9 {
+      SAVE "best_model"
+      LOG "High accuracy reached"
+    }
+    
+    EVERY 2 epochs {
+      SAVE "checkpoint_epoch_{epoch}"
+    }
+  }
+  
+  validate_every: 200
+  
+  IF epoch == 1 {
+    LOG "Warmup stage"
+  }
+  
+  IF epoch > 5 AND accuracy < 0.6 {
+    SET LR = 0.00001
+    LOG "Model is stagnated, reducing learning rate"
+  }
+  
+  IF epoch > 10 AND loss > 1.8 {
+    STOP_TRAINING
+  }
+  
+  WHEN gpu_memory < 12GB {
+    SET batch_size = 16
+  }
+  
+  EVERY 500 steps {
+    SAVE checkpoint
+  }
+}
+
+MONITOR {
+  metrics: ["loss", "val_loss", "accuracy", "gpu_usage", "ram_usage"]
+  notify_if {
+    loss > 2.0
+    gpu_usage > 90%
+  }
+  log_to: "logs/training.log"
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+
