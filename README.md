@@ -45,7 +45,7 @@
 8. [Training Pipeline](#-training-pipeline)
 9. [OktoSeek Internal Formats](#-oktoseek-internal-formats)
 10. [Integration Targets](#️-integration-targets)
-11. [VS Code Extension](#-vs-code-extension-coming-soon)
+11. [VS Code Extension](#-vs-code-extension)
 12. [Documentation](#-documentation)
 13. [FAQ](#-frequently-asked-questions-faq)
 14. [License](#-license)
@@ -57,10 +57,11 @@
 
 **New to OktoScript?** Get started in 5 minutes:
 
-1. **Read the guide:** [`docs/GETTING_STARTED.md`](./docs/GETTING_STARTED.md)
-2. **Try an example:** [`examples/basic.okt`](./examples/basic.okt)
-3. **Validate:** `okto validate examples/basic.okt`
-4. **Train:** `okto train examples/basic.okt`
+1. **Install VS Code Extension:** [Install OktoScript Extension](https://marketplace.visualstudio.com/items?itemName=OktoSeekAI.oktoscript) (recommended for best experience)
+2. **Read the guide:** [`docs/GETTING_STARTED.md`](./docs/GETTING_STARTED.md)
+3. **Try an example:** [`examples/basic.okt`](./examples/basic.okt)
+4. **Validate:** `okto validate examples/basic.okt`
+5. **Train:** `okto train examples/basic.okt`
 
 📚 **Full documentation:** [`docs/grammar.md`](./docs/grammar.md)  
 🔍 **Validation rules:** [`VALIDATION_RULES.md`](./VALIDATION_RULES.md)
@@ -99,7 +100,7 @@ OktoScript is the official language of the OktoSeek ecosystem and is used by:
 - 🎯 **OktoSeek IDE** – Visual AI development and experimentation
 - ⚙️ **OktoEngine** – Core execution and decision engine
 - 🌐 **OktoScript Web Editor** – Online editor with syntax validation and autocomplete ([Try it now →](https://oktoseek.com/editor.php))
-- 🔌 **VS Code Extension** – Code editing + validation (Coming Soon)
+- 🔌 **VS Code Extension** – Official VS Code extension with syntax highlighting, autocomplete, snippets, and validation ([Install now →](https://marketplace.visualstudio.com/items?itemName=OktoSeekAI.oktoscript))
 - 🔄 **Autonomous pipelines** – Training, control, evaluation and inference
 - 🤖 **AI agents** – Controlled, monitored intelligent systems
 - 📱 **Flutter / API deployments** – Cross-platform model integration
@@ -648,15 +649,46 @@ See [`/examples/`](./examples/) for examples using different export formats.
 
 ---
 
-## 📦 VS Code Extension (Coming Soon)
+## 📦 VS Code Extension
 
-- ✨ **Syntax Highlighting** - Beautiful code colors
-- 🔍 **OktoScript autocomplete** - Smart suggestions
-- ⚠️ **Error checking** - Real-time validation
-- ▶️ **Run / Train buttons** - One-click execution
-- 🎨 **Visual pipeline builder** - Drag-and-drop workflows
+**Official OktoScript extension for Visual Studio Code is now available!**
 
-> 💡 **Tip:** While waiting for the VS Code extension, use the [🌐 OktoScript Web Editor](https://oktoseek.com/editor.php) for syntax validation, autocomplete, and real-time error checking. It's fully integrated with the CLI via `okto web` command! The web editor provides the same features you'll find in the VS Code extension, including context-aware autocomplete and real-time syntax validation.
+[![Install OktoScript Extension](https://img.shields.io/badge/VS%20Code-Install%20OktoScript-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=OktoSeekAI.oktoscript)
+
+### Features
+
+- ✨ **Syntax Highlighting** - Beautiful color-coded OktoScript syntax for all blocks, keywords, and values
+- 🔍 **Smart Autocomplete** - Context-aware suggestions based on the current block (ENV, DATASET, MODEL, TRAIN, etc.)
+- 📝 **Code Snippets** - Quick templates for all OktoScript blocks (PROJECT, MODEL, TRAIN, CONTROL, INFERENCE, FT_LORA, etc.)
+- ✅ **Syntax Validation** - Validate your `.okt` files using OktoEngine directly from VS Code
+- 🌐 **Web Editor Integration** - Open files directly in the OktoScript Web Editor with one command
+- 🎯 **Intelligent Suggestions** - Autocomplete triggers automatically on typing or pressing space
+- 📚 **Block Templates** - Selecting a block from autocomplete generates a complete template (e.g., `MODEL { }`)
+
+### Installation
+
+**From VS Code Marketplace:**
+1. Open VS Code
+2. Press `Ctrl+Shift+X` (or `Cmd+Shift+X` on Mac) to open Extensions
+3. Search for "OktoScript"
+4. Click "Install"
+
+**Or use command line:**
+```bash
+code --install-extension OktoSeekAI.oktoscript
+```
+
+**Direct Link:** [Install OktoScript Extension](https://marketplace.visualstudio.com/items?itemName=OktoSeekAI.oktoscript)
+
+### Usage
+
+- **Syntax Highlighting:** Open any `.okt` file and enjoy beautiful syntax highlighting
+- **Autocomplete:** Start typing a block name (e.g., `MODEL`, `TRAIN`) and see contextual suggestions
+- **Snippets:** Type block names and press `Tab` to insert complete templates
+- **Validation:** Press `Ctrl+Shift+P` → "OktoScript: Validate current file" (requires OktoEngine)
+- **Web Editor:** Press `Ctrl+Shift+P` → "OktoScript: Open in Web Editor" (requires OktoEngine)
+
+> 💡 **Tip:** The VS Code extension works seamlessly with the [🌐 OktoScript Web Editor](https://oktoseek.com/editor.php). Both provide context-aware autocomplete, real-time syntax validation, and full integration with OktoEngine via the `okto web` command!
 
 ---
 
