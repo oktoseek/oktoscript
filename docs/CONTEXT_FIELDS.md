@@ -199,3 +199,6 @@ EXPORT {
 **Versão**: 1.2+  
 **Última atualização**: 2024
 
+
+
+

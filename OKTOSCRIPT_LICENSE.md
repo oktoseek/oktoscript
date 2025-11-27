@@ -1,0 +1,106 @@
+# OktoScript License 1.0
+## Proprietary-Free Use License
+
+**Copyright (c) 2025 OktoSeek AI. All rights reserved.**
+
+---
+
+## Grant of Use
+
+**OktoSeek AI** ("Licensor") grants you ("Licensee") a **non-exclusive, non-transferable, revocable** license to use OktoScript (the "Software") for personal and commercial projects at no cost, subject to the terms and conditions set forth in this License.
+
+---
+
+## Permitted Uses
+
+You are allowed to:
+
+✅ **Use OktoScript** for personal and commercial projects  
+✅ **Create AI models** using OktoScript  
+✅ **Distribute models** trained with OktoScript  
+✅ **Integrate OktoScript** into your applications and workflows  
+✅ **Share OktoScript files** (`.okt` files) with others  
+✅ **Document and teach** OktoScript usage  
+
+---
+
+## Prohibited Uses
+
+You are **NOT** allowed to:
+
+❌ **Modify** the OktoScript language specification, grammar, or syntax  
+❌ **Create derivative works** of OktoScript (e.g., "OpenScript", "OktoScript Fork", "OktoScript Clone")  
+❌ **Fork or clone** OktoScript to create competing languages or DSLs  
+❌ **Reverse engineer** OktoScript with the intent to create a competing product  
+❌ **Remove or alter** copyright notices, trademarks, or proprietary markings  
+❌ **Claim ownership** of OktoScript or any part thereof  
+❌ **Use OktoScript** in any way that violates applicable laws or regulations  
+
+---
+
+## Intellectual Property
+
+OktoScript, including but not limited to:
+- The language specification and grammar
+- Syntax and semantics
+- Documentation and examples
+- Trademarks and logos
+
+is the **exclusive intellectual property** of **OktoSeek AI**.
+
+**OktoScript is a proprietary language** owned by OktoSeek AI. This License does not grant you any ownership rights in OktoScript.
+
+---
+
+## Trademarks
+
+"OktoScript", "OktoSeek", "OktoEngine", "OktoModel", and related marks are trademarks of OktoSeek AI. You may not use these trademarks without explicit written permission from OktoSeek AI, except as necessary to accurately describe your use of OktoScript.
+
+---
+
+## No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL OKTOSEEK AI BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+## Termination
+
+This License is effective until terminated. OktoSeek AI may terminate this License at any time if you breach any of its terms. Upon termination, you must immediately cease all use of OktoScript and destroy all copies in your possession.
+
+---
+
+## Updates and Modifications
+
+OktoSeek AI reserves the right to modify this License at any time. Continued use of OktoScript after such modifications constitutes acceptance of the updated License terms.
+
+---
+
+## Governing Law
+
+This License shall be governed by and construed in accordance with the laws of the jurisdiction in which OktoSeek AI operates, without regard to its conflict of law provisions.
+
+---
+
+## Contact
+
+For questions about this License or to request special permissions, contact:
+
+**OktoSeek AI**  
+Email: service@oktoseek.com  
+Website: https://www.oktoseek.com
+
+---
+
+## Summary
+
+**OktoScript is free to use, but is a proprietary language owned by OktoSeek AI.**
+
+You can use it for any project (personal or commercial), but you cannot modify, fork, clone, or create derivative works of the language itself. This protects OktoScript as the exclusive intellectual property of OktoSeek AI while allowing everyone to use it freely.
+
+---
+
+**Version:** 1.0  
+**Effective Date:** January 2025  
+**Copyright © 2025 OktoSeek AI. All rights reserved.**
+

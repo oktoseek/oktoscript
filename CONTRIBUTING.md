@@ -2,7 +2,9 @@
 
 Thank you for your interest in contributing to OktoScript! 🐙
 
-**OktoScript** is a domain-specific programming language developed by **OktoSeek AI**. We welcome contributions from the community!
+**OktoScript** is a proprietary domain-specific programming language developed and owned by **OktoSeek AI**. We welcome contributions from the community for documentation, examples, bug reports, and feature suggestions!
+
+**Important:** OktoScript is a proprietary language. While we welcome contributions, you may not create derivative works, forks, or competing languages based on OktoScript. See [OKTOSCRIPT_LICENSE.md](./OKTOSCRIPT_LICENSE.md) for complete license terms.
 
 ## How to Contribute
 

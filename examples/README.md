@@ -38,6 +38,23 @@ These examples are used by:
 | [`lora-finetuning.okt`](./lora-finetuning.okt) | LoRA fine-tuning with dataset mixing | Efficient fine-tuning, memory-efficient training |
 | [`dataset-mixing.okt`](./dataset-mixing.okt) | Training with multiple weighted datasets | Combining datasets, weighted sampling |
 
+### 🧪 Test Scripts (Recommended for Testing)
+
+These scripts are specifically designed for testing different features of OktoScript v1.2:
+
+| File | Description | Features Tested |
+|------|-------------|-----------------|
+| [`test-t5-basic.okt`](./test-t5-basic.okt) | Basic training | PROJECT, ENV, DATASET, MODEL, TRAIN, EXPORT |
+| [`test-t5-monitor.okt`](./test-t5-monitor.okt) | Training with MONITOR | Full metrics tracking, notifications |
+| [`test-t5-control.okt`](./test-t5-control.okt) | Training with CONTROL | Automatic decisions, IF/WHEN/EVERY |
+| [`test-flan-t5-complete.okt`](./test-flan-t5-complete.okt) | All advanced blocks | MONITOR, CONTROL, STABILITY together |
+| [`test-flan-t5-inference.okt`](./test-flan-t5-inference.okt) | Inference with governance | BEHAVIOR, GUARD, INFERENCE blocks |
+| [`test-t5-explorer.okt`](./test-t5-explorer.okt) | AutoML with EXPLORER | Hyperparameter search, best model selection |
+
+📖 **See [`TESTING_GUIDE.md`](./TESTING_GUIDE.md) for detailed testing instructions.**
+
+---
+
 ### v1.2 Examples (Advanced Features)
 
 | File | Description | Use Case |
