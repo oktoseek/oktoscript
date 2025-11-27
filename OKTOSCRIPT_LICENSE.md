@@ -29,8 +29,7 @@ You are allowed to:
 You are **NOT** allowed to:
 
 ❌ **Modify** the OktoScript language specification, grammar, or syntax  
-❌ **Create derivative works** of OktoScript (e.g., "OpenScript", "OktoScript Fork", "OktoScript Clone")  
-❌ **Fork or clone** OktoScript to create competing languages or DSLs  
+❌ **Create derivative languages, tools, or interpreters** based on OktoScript  
 ❌ **Reverse engineer** OktoScript with the intent to create a competing product  
 ❌ **Remove or alter** copyright notices, trademarks, or proprietary markings  
 ❌ **Claim ownership** of OktoScript or any part thereof  
@@ -94,9 +93,9 @@ Website: https://www.oktoseek.com
 
 ## Summary
 
-**OktoScript is free to use, but is a proprietary language owned by OktoSeek AI.**
+**OktoScript is available for personal and commercial use at no cost.**
 
-You can use it for any project (personal or commercial), but you cannot modify, fork, clone, or create derivative works of the language itself. This protects OktoScript as the exclusive intellectual property of OktoSeek AI while allowing everyone to use it freely.
+However, OktoScript is a proprietary language owned by OktoSeek AI and may not be modified or used to create derivative languages, tools or interpreters. This protects OktoScript as the exclusive intellectual property of OktoSeek AI while allowing everyone to use it freely.
 
 ---
 

@@ -740,9 +740,9 @@ The language evolves to support increasingly sophisticated AI behaviors while ma
 
 ## 📄 License
 
-**OktoScript is free to use, but is a proprietary language owned by OktoSeek AI.**
+OktoScript is available for personal and commercial use at no cost.
 
-OktoScript is available for personal and commercial use at no cost. However, OktoScript is a proprietary language and you may not modify, distribute, clone, fork, or create derivative works of OktoScript.
+However, OktoScript is a proprietary language owned by OktoSeek AI and may not be modified or used to create derivative languages, tools or interpreters.
 
 See [OKTOSCRIPT_LICENSE.md](./OKTOSCRIPT_LICENSE.md) for complete license terms.
 
@@ -752,7 +752,7 @@ See [OKTOSCRIPT_LICENSE.md](./OKTOSCRIPT_LICENSE.md) for complete license terms.
 
 Contributions are welcome! We welcome bug reports, feature suggestions, documentation improvements, and example contributions. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-**Note:** OktoScript is a proprietary language owned by OktoSeek AI. While we welcome contributions, you may not create derivative works, forks, or competing languages based on OktoScript.
+**Note:** OktoScript is a proprietary language owned by OktoSeek AI. While we welcome contributions, you may not create derivative languages, tools, or interpreters based on OktoScript.
 
 ---
 
