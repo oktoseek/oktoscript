@@ -1,0 +1,58 @@
+# okto_version: "1.2"
+
+# Teste 2: T5 com MONITOR - Métricas Completas
+# Modelo: google/t5-small
+# Objetivo: Testar bloco MONITOR com tracking de métricas
+
+PROJECT "test_t5_monitor"
+DESCRIPTION "Teste T5 com bloco MONITOR - tracking completo de métricas"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "4GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+}
+
+MODEL {
+  base: "t5-small"
+  device: "auto"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 8
+  learning_rate: 0.0001
+  device: "auto"
+}
+
+MONITOR {
+  metrics: [
+    "loss",
+    "val_loss",
+    "accuracy",
+    "perplexity",
+    "gpu_usage",
+    "ram_usage",
+    "throughput",
+    "latency"
+  ]
+  notify_if {
+    loss > 2.0
+    val_loss > 2.5
+    gpu_usage > 90%
+  }
+  log_to: "logs/training_monitor.log"
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

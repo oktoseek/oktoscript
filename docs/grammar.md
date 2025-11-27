@@ -349,6 +349,8 @@ When OktoEngine encounters an ENV block, it must:
       [<dataset_percent>]
       [<dataset_sampling>]
       [<dataset_shuffle>]
+      [<dataset_input_field>]
+      [<dataset_output_field>]
   "}"
 
 <dataset_train> ::=
@@ -389,6 +391,15 @@ When OktoEngine encounters an ENV block, it must:
 
 <dataset_shuffle> ::=
   "shuffle" ":" ("true" | "false")
+
+<dataset_input_field> ::=
+  "input_field" ":" <string>
+
+<dataset_output_field> ::=
+  ("output_field" | "target_field") ":" <string>
+
+<dataset_context_fields> ::=
+  "context_fields" ":" "[" <string_list> "]"
 ```
 
 **Allowed augmentation values:**
@@ -433,6 +444,51 @@ DATASET {
     type: "chat"
 }
 ```
+
+**Example (v1.2 - Custom Field Names):**
+```okt
+DATASET {
+    train: "dataset/train.jsonl"
+    validation: "dataset/val.jsonl"
+    format: "jsonl"
+    type: "chat"
+    input_field: "input"
+    output_field: "target"
+}
+```
+
+**Example (v1.2 - With Context Fields):**
+```okt
+DATASET {
+    train: "dataset/pizzaria.jsonl"
+    validation: "dataset/val.jsonl"
+    format: "jsonl"
+    type: "chat"
+    input_field: "input"
+    output_field: "target"
+    context_fields: ["menu", "drinks", "promotions"]
+}
+```
+
+**Dataset JSONL with context:**
+```jsonl
+{"input": "What pizzas do you have?", "target": "We have Margherita, Pepperoni, and Four Cheese.", "menu": "Margherita: $34, Pepperoni: $39, Four Cheese: $45", "drinks": "Coke, Sprite, Water"}
+{"input": "Do you have drinks?", "target": "Yes, we have Coke, Sprite, and Water.", "menu": "Margherita: $34, Pepperoni: $39", "drinks": "Coke, Sprite, Water"}
+```
+
+The context fields will be automatically included in the prompt:
+- Input: `menu: Margherita: $34, Pepperoni: $39 | drinks: Coke, Sprite, Water | What pizzas do you have?`
+- Target: `We have Margherita, Pepperoni, and Four Cheese.`
+
+**Field Name Resolution (v1.2+):**
+- If `input_field` and `output_field` are specified, use those exact field names
+- If not specified, defaults are tried in order:
+  1. `"input"` + `"output"` (standard format)
+  2. `"input"` + `"target"` (common alternative)
+  3. `"text"` (single field, used for both input and output)
+  4. First string field in dataset (fallback)
+- `context_fields` are optional and will be included in the prompt if present
+- This ensures backward compatibility while allowing full customization
 
 **Dataset Mixing Rules:**
 - If `mix_datasets` is specified, it overrides `train`
@@ -686,6 +742,8 @@ FT_LORA {
       [<gradient_clip>]
       [<warmup_steps>]
       [<save_strategy>]
+      [<logging_steps>]
+      [<save_steps>]
   "}"
 
 <train_epochs> ::= 
@@ -735,6 +793,12 @@ FT_LORA {
 
 <save_strategy> ::=
   "save_strategy" ":" ("steps" | "epoch" | "no")
+
+<logging_steps> ::=
+  "logging_steps" ":" <number>
+
+<save_steps> ::=
+  "save_steps" ":" <number>
 ```
 
 **Allowed values and constraints:**
@@ -792,6 +856,8 @@ TRAIN {
     gradient_clip: 1.0
     warmup_steps: 500
     save_strategy: "steps"
+    logging_steps: 5    # Log every 5 steps (default: 10)
+    save_steps: 500     # Save checkpoint every 500 steps (default: 500)
 }
 ```
 
@@ -2563,8 +2629,18 @@ See [`../examples/`](../examples/) for complete working examples:
 
 **OktoScript** is a domain-specific programming language developed by **OktoSeek AI** for building, training, evaluating and exporting AI models. It is part of the OktoSeek ecosystem, which includes OktoSeek IDE, OktoEngine, and various tools for AI development.
 
+### 🌐 OktoScript Web Editor
+
+Try OktoScript online with the **OktoScript Web Editor** at [https://oktoseek.com/editor.php](https://oktoseek.com/editor.php). The editor features:
+
+- **Smart Autocomplete** – Context-aware suggestions based on the current block
+- **Real-time Syntax Validation** – Detects errors like nested blocks and missing braces
+- **CLI Integration** – Use `okto web` command to open files directly
+- **Auto-save to Local** – Saves back to the same location when you load a file
+
 For more information, visit:
 - **Official website:** https://www.oktoseek.com
+- **Web Editor:** https://oktoseek.com/editor.php
 - **GitHub:** https://github.com/oktoseek/oktoscript
 - **Hugging Face:** https://huggingface.co/OktoSeek
 - **Twitter:** https://x.com/oktoseek

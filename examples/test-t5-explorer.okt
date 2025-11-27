@@ -1,0 +1,54 @@
+# okto_version: "1.2"
+
+# Teste 6: T5 com EXPLORER - AutoML Básico
+# Modelo: google/t5-small
+# Objetivo: Testar bloco EXPLORER para busca de hiperparâmetros
+
+PROJECT "test_t5_explorer"
+DESCRIPTION "Teste T5 com EXPLORER - busca automática de hiperparâmetros"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "4GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+}
+
+MODEL {
+  base: "t5-small"
+  device: "auto"
+}
+
+TRAIN {
+  epochs: 3
+  batch_size: 8
+  learning_rate: 0.0001
+  device: "auto"
+}
+
+EXPLORER {
+  try {
+    lr: [0.001, 0.0005, 0.0001]
+    batch_size: [4, 8, 16]
+    optimizer: ["adamw", "sgd"]
+  }
+  max_tests: 5
+  pick_best_by: "val_loss"
+}
+
+MONITOR {
+  metrics: ["loss", "val_loss", "accuracy"]
+  log_to: "logs/explorer_test.log"
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

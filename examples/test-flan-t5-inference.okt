@@ -1,0 +1,91 @@
+# okto_version: "1.2"
+
+# Teste 5: Flan-T5 com INFERENCE e BEHAVIOR
+# Modelo: google/flan-t5-base
+# Objetivo: Testar inferência com controle de comportamento
+
+PROJECT "test_flan_t5_inference"
+DESCRIPTION "Teste Flan-T5 com INFERENCE, BEHAVIOR e GUARD"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+}
+
+MODEL {
+  base: "google/flan-t5-base"
+  device: "auto"
+}
+
+TRAIN {
+  epochs: 3
+  batch_size: 16
+  learning_rate: 0.0001
+  device: "auto"
+}
+
+BEHAVIOR {
+  mode: "chat"
+  personality: "friendly"
+  verbosity: "medium"
+  language: "pt-BR"
+  avoid: ["violence", "hate", "politics"]
+  fallback: "Como posso ajudar?"
+  prompt_style: "User: {input}\nAssistant:"
+}
+
+GUARD {
+  prevent {
+    hallucination
+    toxicity
+    bias
+    data_leak
+  }
+  detect_using: ["classifier", "regex", "rule_engine"]
+  on_violation {
+    REPLACE with_message: "Desculpe, essa solicitação não é permitida."
+  }
+}
+
+INFERENCE {
+  mode: "chat"
+  format: "User: {input}\nAssistant:"
+  exit_command: "/exit"
+  params {
+    max_length: 120
+    temperature: 0.7
+    top_p: 0.9
+    beams: 2
+    do_sample: true
+  }
+  CONTROL {
+    IF confidence < 0.3 {
+      RETRY
+      LOG "Low confidence - retrying"
+    }
+    
+    IF repetition > 3 {
+      REGENERATE
+      LOG "High repetition detected - regenerating"
+    }
+  }
+}
+
+MONITOR {
+  metrics: ["loss", "val_loss", "accuracy", "confidence"]
+  log_to: "logs/inference_test.log"
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

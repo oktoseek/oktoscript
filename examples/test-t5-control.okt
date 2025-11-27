@@ -1,0 +1,77 @@
+# okto_version: "1.2"
+
+# Teste 3: T5 com CONTROL - Decisões Automáticas
+# Modelo: google/t5-small
+# Objetivo: Testar bloco CONTROL com lógica condicional
+
+PROJECT "test_t5_control"
+DESCRIPTION "Teste T5 com bloco CONTROL - decisões automáticas durante treino"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "4GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+}
+
+MODEL {
+  base: "t5-small"
+  device: "auto"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 8
+  learning_rate: 0.0001
+  device: "auto"
+}
+
+CONTROL {
+  on_step_end {
+    LOG loss
+  }
+  
+  on_epoch_end {
+    SAVE model
+    LOG "Epoch completed"
+  }
+  
+  validate_every: 100
+  
+  IF loss > 2.0 {
+    SET LR = 0.00005
+    LOG "High loss detected - reducing learning rate"
+  }
+  
+  IF val_loss > 2.5 {
+    STOP_TRAINING
+    LOG "Validation loss too high - stopping training"
+  }
+  
+  IF accuracy < 0.4 {
+    DECREASE LR BY 0.5
+    LOG "Low accuracy - decreasing learning rate by 50%"
+  }
+  
+  WHEN gpu_memory < 8GB {
+    SET batch_size = 4
+    LOG "Low GPU memory - reducing batch size"
+  }
+  
+  EVERY 500 steps {
+    SAVE checkpoint
+    LOG "Checkpoint saved"
+  }
+}
+
+EXPORT {
+  format: ["okm"]
+  path: "export/"
+}
+

@@ -1,0 +1,109 @@
+# okto_version: "1.2"
+
+# Teste 4: Flan-T5 Completo - Todos os Blocos
+# Modelo: google/flan-t5-base
+# Objetivo: Testar todos os blocos avançados juntos
+
+PROJECT "test_flan_t5_complete"
+DESCRIPTION "Teste completo Flan-T5 com todos os blocos v1.2"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "8GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+}
+
+MODEL {
+  base: "google/flan-t5-base"
+  device: "auto"
+}
+
+TRAIN {
+  epochs: 5
+  batch_size: 16
+  learning_rate: 0.0001
+  device: "auto"
+}
+
+MONITOR {
+  metrics: [
+    "loss",
+    "val_loss",
+    "accuracy",
+    "perplexity",
+    "gpu_usage",
+    "ram_usage",
+    "throughput",
+    "latency",
+    "confidence"
+  ]
+  notify_if {
+    loss > 2.0
+    val_loss > 2.5
+    gpu_usage > 90%
+    ram_usage > 80%
+  }
+  log_to: "logs/training_complete.log"
+}
+
+CONTROL {
+  on_step_end {
+    LOG loss
+  }
+  
+  on_epoch_end {
+    SAVE model
+    LOG "Epoch completed"
+    
+    IF loss > 1.5 {
+      SET LR = 0.00005
+      LOG "Loss still high after epoch - reducing LR"
+    }
+    
+    IF accuracy > 0.9 {
+      SAVE "best_model"
+      LOG "High accuracy reached - saving best model"
+    }
+  }
+  
+  validate_every: 200
+  
+  IF loss > 2.0 {
+    SET LR = 0.00005
+    LOG "High loss detected"
+  }
+  
+  IF val_loss > 2.5 {
+    STOP_TRAINING
+    LOG "Validation loss too high"
+  }
+  
+  WHEN gpu_memory < 12GB {
+    SET batch_size = 8
+    LOG "Reducing batch size due to GPU pressure"
+  }
+  
+  EVERY 1000 steps {
+    SAVE checkpoint
+    LOG "Periodic checkpoint"
+  }
+}
+
+STABILITY {
+  stop_if_nan: true
+  stop_if_diverges: true
+  min_improvement: 0.001
+}
+
+EXPORT {
+  format: ["okm", "safetensors"]
+  path: "export/"
+}
+

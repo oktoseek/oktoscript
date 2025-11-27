@@ -1,0 +1,35 @@
+# okto_version: "1.2"
+
+PROJECT "test_t5_basic"
+DESCRIPTION "Teste basico com T5-small - sem blocos avancados"
+
+ENV {
+  accelerator: "gpu"
+  min_memory: "4GB"
+  precision: "fp16"
+  backend: "oktoseek"
+  install_missing: true
+}
+
+DATASET {
+  train: "dataset/train.jsonl"
+  validation: "dataset/val.jsonl"
+}
+
+MODEL {
+  base: "google/t5-small"
+  device: "auto"
+}
+
+TRAIN {
+  epochs: 3
+  batch_size: 8
+  learning_rate: 0.0001
+  device: "auto"
+}
+
+EXPORT {
+  format: ["okm", "safetensors"]
+  path: "export/"
+}
+

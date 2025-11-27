@@ -1,0 +1,43 @@
+# okto_version: "1.2"
+PROJECT "pizzaria_chatbot"
+DESCRIPTION "Chatbot de pizzaria com campos de contexto (menu, drinks, etc.)"
+
+ENV {
+    accelerator: "gpu"
+    min_memory: "4GB"
+    precision: "fp16"
+    backend: "oktoseek"
+    install_missing: true
+}
+
+DATASET {
+    train: "dataset/train.jsonl"
+    validation: "dataset/val.jsonl"
+    format: "jsonl"
+    type: "chat"
+    
+    # Campos principais
+    input_field: "input"
+    output_field: "target"
+    
+    # Campos de contexto que serão incluídos automaticamente no prompt
+    context_fields: ["menu", "drinks", "promotions"]
+}
+
+MODEL {
+    base: "t5-small"
+    device: "auto"
+}
+
+TRAIN {
+    epochs: 3
+    batch_size: 8
+    learning_rate: 0.0001
+    device: "auto"
+}
+
+EXPORT {
+    format: ["okm", "safetensors"]
+    path: "export/"
+}
+

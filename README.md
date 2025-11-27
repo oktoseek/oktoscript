@@ -98,7 +98,8 @@ OktoScript is the official language of the OktoSeek ecosystem and is used by:
 
 - 🎯 **OktoSeek IDE** – Visual AI development and experimentation
 - ⚙️ **OktoEngine** – Core execution and decision engine
-- 🔌 **VS Code Extension** – Code editing + validation
+- 🌐 **OktoScript Web Editor** – Online editor with syntax validation and autocomplete ([Try it now →](https://oktoseek.com/editor.php))
+- 🔌 **VS Code Extension** – Code editing + validation (Coming Soon)
 - 🔄 **Autonomous pipelines** – Training, control, evaluation and inference
 - 🤖 **AI agents** – Controlled, monitored intelligent systems
 - 📱 **Flutter / API deployments** – Cross-platform model integration
@@ -309,6 +310,7 @@ OktoScript v1.1 adds powerful new features while maintaining 100% backward compa
 - ✅ **Image + Caption** - Vision datasets
 - ✅ **Question & Answer (QA)** - Q&A pairs
 - ✅ **Instruction datasets** - Instruction-following
+- ✅ **Custom Field Names** (v1.2+) - Define `input_field` and `output_field` for any column names
 - ✅ **Multi-modal** - (future support)
 
 ### Example (JSONL):
@@ -317,6 +319,22 @@ OktoScript v1.1 adds powerful new features while maintaining 100% backward compa
 {"input":"What flavors do you have?","output":"We offer Margherita, Pepperoni and Four Cheese."}
 {"input":"Do you deliver?","output":"Yes, delivery is available in your region."}
 ```
+
+### Custom Field Names (v1.2+)
+
+OktoScript now supports custom field names in datasets, allowing you to work with any column names:
+
+```okt
+DATASET {
+    train: "dataset/train.jsonl"
+    input_field: "question"    # Custom input column name
+    output_field: "answer"      # Custom output column name
+}
+```
+
+If not specified, OktoEngine automatically detects `input`/`output` or `input`/`target` fields.
+
+📖 **[Learn more about custom fields →](./docs/CUSTOM_FIELDS.md)**
 
 ---
 
@@ -348,6 +366,27 @@ METRICS {
 ## 🖥️ CLI Commands
 
 The OktoEngine CLI is minimal by design. All intelligence lives in the `.okt` file. The terminal is just the execution port.
+
+### 🌐 Web Editor Command
+
+**Open OktoScript files in the web editor:**
+
+```bash
+# Open editor with a specific file
+okto web --file scripts/train.okt
+
+# Open empty editor
+okto web
+```
+
+The `okto web` command opens the [OktoScript Web Editor](https://oktoseek.com/editor.php) in your browser. When you provide a file path, it automatically loads the file content for editing. The editor features:
+
+- **Smart Autocomplete** – Context-aware suggestions based on the current block (ENV, DATASET, MODEL, TRAIN, etc.)
+- **Real-time Syntax Validation** – Detects errors like nested blocks (e.g., PROJECT inside DATASET) and missing braces
+- **Auto-save to Local** – When you load a file, it saves back to the same location automatically
+- **Full Integration** – Seamlessly connects with OktoEngine for validation and training
+
+Perfect for quick edits, syntax testing, and experimenting with OktoScript configurations!
 
 ### Core Commands
 
@@ -616,6 +655,8 @@ See [`/examples/`](./examples/) for examples using different export formats.
 - ⚠️ **Error checking** - Real-time validation
 - ▶️ **Run / Train buttons** - One-click execution
 - 🎨 **Visual pipeline builder** - Drag-and-drop workflows
+
+> 💡 **Tip:** While waiting for the VS Code extension, use the [🌐 OktoScript Web Editor](https://oktoseek.com/editor.php) for syntax validation, autocomplete, and real-time error checking. It's fully integrated with the CLI via `okto web` command! The web editor provides the same features you'll find in the VS Code extension, including context-aware autocomplete and real-time syntax validation.
 
 ---
 
