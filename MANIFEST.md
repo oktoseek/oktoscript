@@ -155,7 +155,7 @@ Even as the language evolves, technology transforms, and new generations carry i
 
 This manifesto represents the philosophy and vision of OktoSeek AI. The content reflects our commitment to open knowledge, community-driven development, and democratizing AI.
 
-For licensing information about OktoScript and related projects, see the [LICENSE](./LICENSE) file.
+For licensing information about OktoScript and related projects, see the [OKTOSCRIPT_LICENSE.md](./OKTOSCRIPT_LICENSE.md) file.
 
 ---
 

@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete PizzaBot example project
 - JSON Schema for dataset validation
 - Professional README with documentation
-- Apache 2.0 License
+- OktoScript License 1.0 (Proprietary-Free Use License)
 
 ### Documentation
 - Grammar specification in EBNF format

@@ -10,7 +10,7 @@ structure:
   export_dir: "export/"
 
 default_language: "en"
-license: "Apache-2.0"
+license: "OktoScript License 1.0"
 
 
 
