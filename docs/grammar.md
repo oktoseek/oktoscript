@@ -2579,6 +2579,108 @@ GUARD {
 
 ---
 
+## BLAS Block — GPU Acceleration (v1.3+)
+
+The `BLAS` block allows users to configure GPU acceleration settings for training and inference. This is optional and provides fine-grained control over matrix operations.
+
+```ebnf
+<blas_block> ::=
+  "BLAS" "{"
+      [<blas_backend>]
+      [<blas_precision>]
+      [<blas_streams>]
+  "}"
+
+<blas_backend> ::=
+  "backend" ":" ("oktoblas" | "cublas" | "auto")
+
+<blas_precision> ::=
+  "precision" ":" ("fp16" | "fp32" | "auto")
+
+<blas_streams> ::=
+  "streams" ":" <number>
+```
+
+**Fields:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `backend` | enum | `"auto"` | BLAS backend: `"oktoblas"` for OktoBLAS, `"cublas"` for cuBLAS, `"auto"` for automatic |
+| `precision` | enum | `"auto"` | Computation precision for matrix operations |
+| `streams` | number | `1` | Number of CUDA streams for parallel operations |
+
+**Example:**
+```okt
+BLAS {
+    backend: "oktoblas"
+    precision: "fp16"
+    streams: 4
+}
+```
+
+---
+
+## ACCELERATE Block — Operation Optimization (v1.3+)
+
+The `ACCELERATE` block provides hints for which operations should use GPU acceleration.
+
+```ebnf
+<accelerate_block> ::=
+  "ACCELERATE" "{"
+      [<accelerate_gemm>]
+      [<accelerate_attention>]
+      [<accelerate_fused_ops>]
+  "}"
+
+<accelerate_gemm> ::=
+  "gemm" ":" ("oktoblas" | "native" | "auto")
+
+<accelerate_attention> ::=
+  "attention" ":" ("oktoblas" | "native" | "auto")
+
+<accelerate_fused_ops> ::=
+  "fused_ops" ":" <boolean>
+```
+
+**Example:**
+```okt
+ACCELERATE {
+    gemm: "oktoblas"
+    attention: "oktoblas"
+    fused_ops: true
+}
+```
+
+---
+
+## TENSOR_CORES Block — Tensor Core Control (v1.3+)
+
+The `TENSOR_CORES` block enables explicit control over NVIDIA Tensor Cores usage.
+
+```ebnf
+<tensor_cores_block> ::=
+  "TENSOR_CORES" "{"
+      [<tc_enabled>]
+      [<tc_precision>]
+  "}"
+
+<tc_enabled> ::=
+  "enabled" ":" <boolean>
+
+<tc_precision> ::=
+  "precision" ":" ("fp16" | "bf16" | "tf32")
+```
+
+**Example:**
+```okt
+TENSOR_CORES {
+    enabled: true
+    precision: "fp16"
+}
+```
+
+---
+
 ## Complete Examples
 
 See [`../examples/`](../examples/) for complete working examples:
@@ -2593,13 +2695,20 @@ See [`../examples/`](../examples/) for complete working examples:
 
 ---
 
-**Version:** 1.2  
+**Version:** 1.3  
 **Last Updated:** December 2025  
 **Maintained by:** OktoSeek AI
 
 ---
 
 ## Version History
+
+### v1.3 (December 2025)
+- ✅ Added `BLAS` block for GPU acceleration configuration
+- ✅ Added `ACCELERATE` block for operation optimization
+- ✅ Added `TENSOR_CORES` block for Tensor Core control
+- ✅ OktoBLAS integration for 125% PyTorch FP16 performance
+- ✅ 100% backward compatible with v1.0, v1.1, and v1.2
 
 ### v1.2 (December 2025)
 - ✅ Enhanced `CONTROL` block with nested blocks support
