@@ -2,7 +2,7 @@
   <img src="./assets/okto_logo.png" alt="OktoScript Banner" width="50%" />
 </p>
 <p align="center">
-  <img src="./assets/okto_logo2.png" alt="OktoScript Banner" width="50%" />
+  <img src="./assets/okto_logo2.png" alt="OktoSeek" width="50%" />
 </p>
 
 
