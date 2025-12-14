@@ -2,14 +2,18 @@
   <img src="./assets/okto_logo.png" alt="OktoScript Banner" width="50%" />
 </p>
 <p align="center">
-  <img src="./assets/okto_logo2.png" alt="OktoSeek" width="50%" />
+  <img src="./assets/okto_logo2.png" alt="OktoScript Banner" width="50%" />
 </p>
 
 
 
 <h1 align="center">OktoScript</h1>
 
-
+<p align="center">
+  <a href="https://doi.org/10.5281/zenodo.17931283">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17931283.svg" alt="DOI">
+  </a>
+</p>
 
 <p align="center">
   <strong>A decision-driven language for training, evaluating and governing AI models.</strong>
@@ -767,6 +771,14 @@ The language evolves to support increasingly sophisticated AI behaviors while ma
 - **Twitter:** https://x.com/oktoseek
 - **YouTube:** https://www.youtube.com/@Oktoseek
 - **Repository:** https://github.com/oktoseek/oktoscript
+
+---
+
+## 📚 Zenodo Archive
+
+This repository is archived on Zenodo as scientific evidence and prior-art record:
+
+**Zenodo DOI**: [10.5281/zenodo.17931283](https://doi.org/10.5281/zenodo.17931283)
 
 ---
 
